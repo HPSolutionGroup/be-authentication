@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36518.9 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "be-authentication", "be-authentication\be-authentication.csproj", "{B9F2EE02-A2D7-460D-A806-C7A00EAD3473}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "be-authenticationAPI", "be-authenticationAPI\be-authenticationAPI.csproj", "{3936C651-D8FE-44A7-BA46-84E95DECF43E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B9F2EE02-A2D7-460D-A806-C7A00EAD3473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9F2EE02-A2D7-460D-A806-C7A00EAD3473}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9F2EE02-A2D7-460D-A806-C7A00EAD3473}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9F2EE02-A2D7-460D-A806-C7A00EAD3473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3936C651-D8FE-44A7-BA46-84E95DECF43E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3936C651-D8FE-44A7-BA46-84E95DECF43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3936C651-D8FE-44A7-BA46-84E95DECF43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3936C651-D8FE-44A7-BA46-84E95DECF43E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,6 @@
+@be_authenticationAPI_HostAddress = http://localhost:5299
+
+GET {{be_authenticationAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
