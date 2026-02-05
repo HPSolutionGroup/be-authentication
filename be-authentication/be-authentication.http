@@ -1,6 +1,0 @@
-@be_authentication_HostAddress = http://localhost:5160
-
-GET {{be_authentication_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
