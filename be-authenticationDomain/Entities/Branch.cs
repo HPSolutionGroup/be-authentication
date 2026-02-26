@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using be_authenticationDomain.Utils;
 
 namespace be_authenticationDomain.Entities
 {
-    public class User : IdentityUser<Guid>
+    public class Branch : BaseEntity
     {
-        public string? Name { get; set; }
-        public string? Avatar { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Name { get; set; }
+        public string? Address { get; set; }
         public bool IsActive { get; set; }
-        public DateTime? DateOfBirth { get; set; }
 
         // ==== Navigate ====
 
