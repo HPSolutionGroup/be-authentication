@@ -13,6 +13,16 @@
 
   <ItemGroup>
 	  <PackageReference Include="CoreApiResponse" Version="1.0.1" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.14">
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	    <PrivateAssets>all</PrivateAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.14" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.14">
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	    <PrivateAssets>all</PrivateAssets>
+	  </PackageReference>
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.6.2" />
 	  <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.6.2" />
@@ -22,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\be-authenticationDomain\be-authenticationDomain.csproj" />
+    <ProjectReference Include="..\be-authenticationInfrastructure\be-authenticationInfrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

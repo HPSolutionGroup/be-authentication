@@ -17,6 +17,17 @@ namespace be_authenticationInfrastructure.Data
         }
 
         #region DbSet
+        public DbSet<Branch> Branches { get; set; }
+        public DbSet<Command> Commands { get; set; }
+        public DbSet<CommandInFunction> CommandInFunctions { get; set; }
+        public DbSet<Function> Functions { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<PermissionGroup> PermissionGroups { get; set; }
+        public DbSet<PermissionGroupType> PermissionGroupTypes { get; set; }
+        public DbSet<Subsystem> Subsystems { get; set; }
+        public DbSet<UserInBranch> UserInBranches { get; set; }
+        public DbSet<UserPermission> UserPermissions { get; set; }
+        public DbSet<UserPermissionGroup> UserPermissionGroups { get; set; }
 
         #endregion
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

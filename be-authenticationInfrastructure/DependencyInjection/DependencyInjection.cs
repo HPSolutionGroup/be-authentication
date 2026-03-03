@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using be_authenticationInfrastructure.DependencyInjection.Extensions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace be_authenticationInfrastructure.DependencyInjection

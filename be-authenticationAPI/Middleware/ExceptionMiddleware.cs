@@ -15,7 +15,7 @@ namespace be_authenticationAPI.Middleware
             (
                 RequestDelegate next,
                 ILogger<ExceptionMiddleware> logger
-                //IJsonLocalizationService localizer
+            //IJsonLocalizationService localizer
             )
         {
             _next = next;

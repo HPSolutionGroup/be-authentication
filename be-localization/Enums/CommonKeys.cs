@@ -19,3 +19,4 @@ namespace be_localization.Enums
         NAME_CAN_NOT_EMPTY,
         LOG_NOT_FOUND
     }
+}
