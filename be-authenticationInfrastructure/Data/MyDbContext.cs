@@ -30,18 +30,6 @@ namespace be_authenticationInfrastructure.Data
         public DbSet<UserPermissionGroup> UserPermissionGroups { get; set; }
 
         #endregion
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
-                .Build();
-
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("Default"));
-            }
-        }
 
         #region Migration - Seed
         protected override void OnModelCreating(ModelBuilder builder)

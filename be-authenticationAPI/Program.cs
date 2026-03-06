@@ -1,4 +1,5 @@
 using be_authenticationAPI.Middleware;
+using be_authenticationApplication.DependencyInjection;
 using be_authenticationInfrastructure.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -64,6 +65,7 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+builder.Services.ApplicationService();
 builder.Services.InfrastructureService(builder.Configuration);
 
 var app = builder.Build();

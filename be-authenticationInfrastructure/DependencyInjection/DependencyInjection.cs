@@ -1,4 +1,6 @@
-﻿using be_authenticationInfrastructure.DependencyInjection.Extensions;
+﻿using be_authenticationInfrastructure.DependencyInjection.Extensions.Authentication;
+using be_authenticationInfrastructure.DependencyInjection.Extensions.Database;
+using be_authenticationInfrastructure.DependencyInjection.Extensions.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,7 +11,8 @@ namespace be_authenticationInfrastructure.DependencyInjection
         public static IServiceCollection InfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDatabaseExtension(configuration);
-
+            services.AddJwtExtension(configuration);
+            services.AddLocalizationExtensions();
             return services;
         }
     }

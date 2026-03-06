@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\be-authenticationApplication\be-authenticationApplication.csproj" />
     <ProjectReference Include="..\be-authenticationDomain\be-authenticationDomain.csproj" />
+    <ProjectReference Include="..\be-localization\be-localization.csproj" />
   </ItemGroup>
 
 </Project>

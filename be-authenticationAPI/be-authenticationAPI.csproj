@@ -33,10 +33,16 @@
   <ItemGroup>
     <ProjectReference Include="..\be-authenticationDomain\be-authenticationDomain.csproj" />
     <ProjectReference Include="..\be-authenticationInfrastructure\be-authenticationInfrastructure.csproj" />
+    <ProjectReference Include="..\be-localization\be-localization.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <None Update="Keys\private.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Keys\public.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
