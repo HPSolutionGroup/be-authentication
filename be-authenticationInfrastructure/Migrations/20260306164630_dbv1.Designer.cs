@@ -12,7 +12,7 @@ using be_authenticationInfrastructure.Data;
 namespace be_authenticationInfrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20260303063527_dbv1")]
+    [Migration("20260306164630_dbv1")]
     partial class dbv1
     {
         /// <inheritdoc />
@@ -111,13 +111,13 @@ namespace be_authenticationInfrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("252f6f79-4973-424f-b220-30579df55b07"),
-                            RoleId = new Guid("a036d75c-4379-40fa-8055-f455ee27201c")
+                            UserId = new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"),
+                            RoleId = new Guid("a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")
                         },
                         new
                         {
-                            UserId = new Guid("6a1b3c72-23c9-4743-b460-fc07ad72f91e"),
-                            RoleId = new Guid("5fc13039-1517-46b3-9e5c-3ada07e136b8")
+                            UserId = new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"),
+                            RoleId = new Guid("b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e")
                         });
                 });
 
@@ -147,7 +147,8 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -175,7 +176,8 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
@@ -211,7 +213,8 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
 
@@ -241,7 +244,8 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -269,7 +273,8 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
@@ -281,9 +286,15 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("SubsystemId");
 
@@ -336,7 +347,8 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid>("GroupTypeId")
                         .HasColumnType("uniqueidentifier");
@@ -355,7 +367,8 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
@@ -383,7 +396,8 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -396,11 +410,67 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
                     b.ToTable("PermissionGroupTypes");
+                });
+
+            modelBuilder.Entity("be_authenticationDomain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeviceName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RevokedByIp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("be_authenticationDomain.Entities.Role", b =>
@@ -433,19 +503,22 @@ namespace be_authenticationInfrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a036d75c-4379-40fa-8055-f455ee27201c"),
+                            Id = new Guid("a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"),
+                            ConcurrencyStamp = "J7XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E",
                             Name = "SuperAdmin",
                             NormalizedName = "SUPER_ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("5fc13039-1517-46b3-9e5c-3ada07e136b8"),
+                            Id = new Guid("b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"),
+                            ConcurrencyStamp = "M2NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("c005a952-3c05-4d58-9c0b-6a8015deb512"),
+                            Id = new Guid("c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"),
+                            ConcurrencyStamp = "V5XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7A",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -459,7 +532,8 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -474,7 +548,8 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -487,9 +562,13 @@ namespace be_authenticationInfrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("Subsystems");
                 });
@@ -504,7 +583,8 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Avatar")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -530,7 +610,8 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -574,17 +655,17 @@ namespace be_authenticationInfrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("252f6f79-4973-424f-b220-30579df55b07"),
+                            Id = new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"),
                             AccessFailedCount = 0,
                             Avatar = "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png",
-                            ConcurrencyStamp = "2d8c6c82-e14a-4a0d-8e4e-1939c582822f",
+                            ConcurrencyStamp = "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM",
                             Email = "superadmin@gmail.com",
                             EmailConfirmed = true,
                             IsActive = true,
                             LockoutEnabled = false,
                             Name = "Super_Admin",
                             NormalizedUserName = "SUPERADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEK21rRlBhejPK/sxBthBVX4q/jbOytXAxDJpDaSkv3qzsYpPz/q93jtMc2iYMohCog==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEz0x3FTbW0248liOHMoWGfyT1ff7JBKW5G85hDH1iECAO/Iv7zRUBiwS62Uzmo4CA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51",
                             TwoFactorEnabled = false,
@@ -592,17 +673,18 @@ namespace be_authenticationInfrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("6a1b3c72-23c9-4743-b460-fc07ad72f91e"),
+                            Id = new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"),
                             AccessFailedCount = 0,
                             Avatar = "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png",
-                            ConcurrencyStamp = "c3ac0b86-c54e-42e7-8a6c-d011a6c33888",
+                            ConcurrencyStamp = "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             IsActive = true,
                             LockoutEnabled = false,
                             Name = "Admin",
+                            NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEBVHshm7qSwMsqZcmFt1Aoww+TLfkLA9UDSIPMD5qc/2U3yPH6hJF1kzFdtAY/HkQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEASKCiqp8PitX5z+N/lBSa69vdqH2W+/JCf20nUXyFkfLnS7FAi3qFt4NxsRaGbcwA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ",
                             TwoFactorEnabled = false,
@@ -746,6 +828,11 @@ namespace be_authenticationInfrastructure.Migrations
 
             modelBuilder.Entity("be_authenticationDomain.Entities.Function", b =>
                 {
+                    b.HasOne("be_authenticationDomain.Entities.Function", null)
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("be_authenticationDomain.Entities.Subsystem", "Subsystem")
                         .WithMany("Functions")
                         .HasForeignKey("SubsystemId")
@@ -791,6 +878,17 @@ namespace be_authenticationInfrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("GroupType");
+                });
+
+            modelBuilder.Entity("be_authenticationDomain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("be_authenticationDomain.Entities.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("be_authenticationDomain.Entities.UserInBranch", b =>
@@ -916,6 +1014,8 @@ namespace be_authenticationInfrastructure.Migrations
 
             modelBuilder.Entity("be_authenticationDomain.Entities.User", b =>
                 {
+                    b.Navigation("RefreshTokens");
+
                     b.Navigation("UserInBranches");
 
                     b.Navigation("UserPermissionGroups");

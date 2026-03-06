@@ -14,5 +14,6 @@ namespace be_authenticationDomain.Entities
         public ICollection<UserPermissionGroup> UserPermissionGroups { get; set; }
         public ICollection<UserPermission> UserPermissions { get; set; }
         public ICollection<UserInBranch> UserInBranches { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
 }

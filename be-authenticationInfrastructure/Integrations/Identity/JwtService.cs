@@ -58,12 +58,13 @@ namespace be_authenticationInfrastructure.Integrations.Identity
 
             // Chuyển sang thuật toán Asymmetric RS256
             var credentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
+            var accessExpiry = int.Parse(_configuration["Jwt:AccessTokenExpirationMinutes"] ?? "60");
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(8),
+                expires: DateTime.UtcNow.AddMinutes(accessExpiry),
                 signingCredentials: credentials
             );
 
@@ -73,7 +74,7 @@ namespace be_authenticationInfrastructure.Integrations.Identity
         // Refresh Token
         public string GenerateRefreshToken()
         {
-            var randomNumber = new byte[32];
+            var randomNumber = new byte[64];
             using (var rng = RandomNumberGenerator.Create())
             {
                 rng.GetBytes(randomNumber);
@@ -81,6 +82,8 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             }
         }
         #endregion
+
+        #region GetJwks
         public JsonWebKeySet GetJwks()
         {
             var securityKey = new RsaSecurityKey(_rsaPublic)
@@ -94,5 +97,6 @@ namespace be_authenticationInfrastructure.Integrations.Identity
 
             return new JsonWebKeySet { Keys = { jwk } };
         }
+        #endregion
     }
 }

@@ -6,7 +6,7 @@ namespace be_authenticationApplication.Abstractions.Identity
     public interface IJwtService
     {
         string GenerateJWTToken(User user, IList<string> roles, Guid branchId);
-        public string GenerateRefreshToken();
+        string GenerateRefreshToken();
         JsonWebKeySet GetJwks();
     }
 }

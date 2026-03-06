@@ -32,8 +32,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Avatar = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -61,8 +61,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -82,7 +82,7 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -101,8 +101,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -121,9 +121,9 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -244,6 +244,34 @@ namespace be_authenticationInfrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ReplacedByToken = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    CreatedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RevokedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IpAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    UserAgent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    DeviceName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserInBranches",
                 columns: table => new
                 {
@@ -272,8 +300,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     GroupTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -300,9 +328,9 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     ParentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IsVisible = table.Column<bool>(type: "bit", nullable: false),
@@ -318,6 +346,12 @@ namespace be_authenticationInfrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Functions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Functions_Functions_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "Functions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Functions_Subsystems_SubsystemId",
                         column: x => x.SubsystemId,
@@ -456,9 +490,9 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("5fc13039-1517-46b3-9e5c-3ada07e136b8"), null, "Admin", "ADMIN" },
-                    { new Guid("a036d75c-4379-40fa-8055-f455ee27201c"), null, "SuperAdmin", "SUPER_ADMIN" },
-                    { new Guid("c005a952-3c05-4d58-9c0b-6a8015deb512"), null, "User", "USER" }
+                    { new Guid("a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"), "J7XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", "SuperAdmin", "SUPER_ADMIN" },
+                    { new Guid("b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"), "M2NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", "Admin", "ADMIN" },
+                    { new Guid("c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"), "V5XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7A", "User", "USER" }
                 });
 
             migrationBuilder.InsertData(
@@ -466,8 +500,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "Avatar", "ConcurrencyStamp", "DateOfBirth", "Email", "EmailConfirmed", "IsActive", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { new Guid("252f6f79-4973-424f-b220-30579df55b07"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "2d8c6c82-e14a-4a0d-8e4e-1939c582822f", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEK21rRlBhejPK/sxBthBVX4q/jbOytXAxDJpDaSkv3qzsYpPz/q93jtMc2iYMohCog==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
-                    { new Guid("6a1b3c72-23c9-4743-b460-fc07ad72f91e"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "c3ac0b86-c54e-42e7-8a6c-d011a6c33888", null, "admin@gmail.com", true, true, false, null, "Admin", null, "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEEBVHshm7qSwMsqZcmFt1Aoww+TLfkLA9UDSIPMD5qc/2U3yPH6hJF1kzFdtAY/HkQ==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
+                    { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEEz0x3FTbW0248liOHMoWGfyT1ff7JBKW5G85hDH1iECAO/Iv7zRUBiwS62Uzmo4CA==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
+                    { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", null, "admin@gmail.com", true, true, false, null, "Admin", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEASKCiqp8PitX5z+N/lBSa69vdqH2W+/JCf20nUXyFkfLnS7FAi3qFt4NxsRaGbcwA==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
                 });
 
             migrationBuilder.InsertData(
@@ -475,8 +509,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[,]
                 {
-                    { new Guid("a036d75c-4379-40fa-8055-f455ee27201c"), new Guid("252f6f79-4973-424f-b220-30579df55b07") },
-                    { new Guid("5fc13039-1517-46b3-9e5c-3ada07e136b8"), new Guid("6a1b3c72-23c9-4743-b460-fc07ad72f91e") }
+                    { new Guid("a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"), new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a") },
+                    { new Guid("b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"), new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b") }
                 });
 
             migrationBuilder.CreateIndex(
@@ -524,6 +558,17 @@ namespace be_authenticationInfrastructure.Migrations
                 column: "CommandId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Functions_Code",
+                table: "Functions",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Functions_ParentId",
+                table: "Functions",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Functions_SubsystemId",
                 table: "Functions",
                 column: "SubsystemId");
@@ -547,6 +592,23 @@ namespace be_authenticationInfrastructure.Migrations
                 name: "IX_Permissions_PermissionGroupId_FunctionId_CommandId",
                 table: "Permissions",
                 columns: new[] { "PermissionGroupId", "FunctionId", "CommandId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_Token",
+                table: "RefreshTokens",
+                column: "Token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_UserId",
+                table: "RefreshTokens",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subsystems_Code",
+                table: "Subsystems",
+                column: "Code",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -613,6 +675,9 @@ namespace be_authenticationInfrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "UserInBranches");
