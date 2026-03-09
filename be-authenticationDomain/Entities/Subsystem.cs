@@ -11,6 +11,6 @@ namespace be_authenticationDomain.Entities
 
         // ==== Navigate ====
 
-        public ICollection<Function> Functions { get; set; }
-    }
+        public ICollection<Function> Functions { get; set; } = new List<Function>();
+    } 
 }

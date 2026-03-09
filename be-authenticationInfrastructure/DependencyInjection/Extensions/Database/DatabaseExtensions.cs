@@ -21,6 +21,7 @@ namespace be_authenticationInfrastructure.DependencyInjection.Extensions.Databas
             // Đăng ký Repository và UnitOfWork
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             return services;
         }

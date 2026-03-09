@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Linq;
 
 namespace be_authenticationInfrastructure.Integrations.Identity
 {
@@ -39,24 +40,28 @@ namespace be_authenticationInfrastructure.Integrations.Identity
         // Token
         public string GenerateJWTToken(User user, IList<string> roles, Guid branchId)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email ?? ""),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("id", user.Id.ToString()),
-                new Claim(ClaimTypes.Role, string.Join(",", roles)),
+                // new Claim("sid", Guid.NewGuid().ToString()),
+                new Claim("email", user.Email ?? ""),
                 new Claim("name", user.Name ?? ""),
                 new Claim("avatar", user.Avatar ?? ""),
-                new Claim("branchId", branchId.ToString()),
-                new Claim("userName", user.UserName ?? "")
+                new Claim("branchId", branchId.ToString())
             };
+
+            foreach (var role in roles.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new RsaSecurityKey(_rsaPrivate)
             {
                 KeyId = _configuration["Jwt:KeyId"]
             };
 
-            // Chuyển sang thuật toán Asymmetric RS256
+
             var credentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
             var accessExpiry = int.Parse(_configuration["Jwt:AccessTokenExpirationMinutes"] ?? "60");
 

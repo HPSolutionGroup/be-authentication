@@ -2,32 +2,35 @@
 using be_authenticationApplication.Abstractions.Repository;
 using be_authenticationDomain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace be_authenticationInfrastructure.Integrations.Identity
 {
     public class RefreshTokenManager : IRefreshTokenManager
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _configuration;
 
         public RefreshTokenManager(
-            IUnitOfWork unitOfWork ) 
+            IUnitOfWork unitOfWork,
+            IConfiguration configuration
+            ) 
         {
             _unitOfWork = unitOfWork;
-
+            _configuration = configuration;
         }
 
         #region 1. Tạo Refresh Token mới (Dùng lúc Login)
         public async Task CreateTokenAsync(Guid userId, string tokenString, string ipAddress, string userAgent, string deviceName)
         {
+            var refreshExpiry = int.Parse(_configuration["Jwt:RefreshTokenExpirationDays"] ?? "7");
+
             var refreshToken = new RefreshToken
             {
                 UserId = userId,
                 Token = tokenString,
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(7), // Có thể cấu hình số ngày từ appsettings nếu muốn
-                IpAddress = ipAddress,
-                UserAgent = userAgent,
-                DeviceName = deviceName,
+                ExpiresAt = DateTime.UtcNow.AddDays(refreshExpiry),
                 CreatedByIp = ipAddress
             };
 
@@ -36,7 +39,7 @@ namespace be_authenticationInfrastructure.Integrations.Identity
         }
         #endregion
 
-        #region 2. Xác thực và Xoay vòng Token (Dùng lúc Refresh)
+        #region Refresh Token
         public async Task<User> VerifyAndRotateTokenAsync(string oldTokenString, string newTokenString, string ipAddress, string userAgent)
         {
             var tokenRepo = _unitOfWork.Repository<RefreshToken>();
@@ -72,7 +75,7 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             // Thu hồi token cũ và trỏ tới token mới
             tokenEntity.RevokedAt = DateTime.UtcNow;
             tokenEntity.RevokedByIp = ipAddress;
-            tokenEntity.ReplacedByToken = newTokenString;
+            
 
             // Tạo token mới
             var newRefreshTokenEntity = new RefreshToken
@@ -81,10 +84,10 @@ namespace be_authenticationInfrastructure.Integrations.Identity
                 Token = newTokenString,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(7),
-                IpAddress = ipAddress,
-                UserAgent = userAgent,
                 CreatedByIp = ipAddress
             };
+
+            tokenEntity.ReplacedByTokenId = newRefreshTokenEntity.Id;
 
             // Lưu cả 2 sự thay đổi vào DB trong cùng 1 Transaction
             await tokenRepo.AddAsync(newRefreshTokenEntity);
@@ -97,7 +100,7 @@ namespace be_authenticationInfrastructure.Integrations.Identity
         }
         #endregion
 
-        #region 3. Thu hồi Token (Dùng lúc Logout)
+        #region Revoke Token 
         public async Task RevokeTokenAsync(string tokenString, string ipAddress)
         {
             var tokenRepo = _unitOfWork.Repository<RefreshToken>();
@@ -117,15 +120,15 @@ namespace be_authenticationInfrastructure.Integrations.Identity
         }
         #endregion
 
-        #region Helper: Hàm đệ quy diệt trừ Token của Hacker
+        #region Helper
         private async Task RevokeDescendantTokens(RefreshToken token, string ipAddress)
         {
-            if (!string.IsNullOrEmpty(token.ReplacedByToken))
+            if (token.ReplacedByTokenId != null)
             {
                 var tokenRepo = _unitOfWork.Repository<RefreshToken>();
 
                 var childToken = await tokenRepo.Query()
-                    .SingleOrDefaultAsync(x => x.Token == token.ReplacedByToken);
+                    .SingleOrDefaultAsync(x => x.Id == token.ReplacedByTokenId);
 
                 if (childToken != null)
                 {
@@ -137,7 +140,6 @@ namespace be_authenticationInfrastructure.Integrations.Identity
                     }
                     else
                     {
-                        // Đệ quy truy tìm tới cùng
                         await RevokeDescendantTokens(childToken, ipAddress);
                     }
                 }

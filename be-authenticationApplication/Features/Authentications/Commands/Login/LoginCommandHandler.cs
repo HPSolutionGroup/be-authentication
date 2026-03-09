@@ -36,7 +36,7 @@ namespace be_authenticationApplication.Features.Authentications.Commands.Login
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var user = await _unitOfWork.Repository<User>()
-                .Query()
+                .Query(false)
                 .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
 
             if (user == null)

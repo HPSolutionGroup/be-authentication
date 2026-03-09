@@ -15,6 +15,6 @@ namespace be_authenticationDomain.Entities
         public PermissionGroupType GroupType { get; set; }
 
         public ICollection<Permission> Permissions { get; set; }
-        public ICollection<UserPermissionGroup> UserPermissionGroups { get; set; }
+        public ICollection<UserPermissionGroup> UserPermissionGroups { get; set; } = new List<UserPermissionGroup>();
     }
 }

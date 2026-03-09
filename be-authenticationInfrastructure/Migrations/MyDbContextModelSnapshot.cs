@@ -425,42 +425,57 @@ namespace be_authenticationInfrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedByIp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DeviceName")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<Guid>("FamilyId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ReplacedByToken")
+                    b.Property<DateTime?>("LastUsedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ParentTokenId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReasonRevoked")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("ReplacedByTokenId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("RevokedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RevokedByIp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("SessionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("UserAgent")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("FamilyId");
+
+                    b.HasIndex("ParentTokenId");
+
+                    b.HasIndex("ReplacedByTokenId");
+
+                    b.HasIndex("SessionId");
 
                     b.HasIndex("Token")
                         .IsUnique();
@@ -662,7 +677,7 @@ namespace be_authenticationInfrastructure.Migrations
                             LockoutEnabled = false,
                             Name = "Super_Admin",
                             NormalizedUserName = "SUPERADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEz0x3FTbW0248liOHMoWGfyT1ff7JBKW5G85hDH1iECAO/Iv7zRUBiwS62Uzmo4CA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELfi7rttGetd4r1MJM5HeXJbzTARuu1AcxTlVrelQtkGb7iPx3XMegP5ENjvF3IFbQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51",
                             TwoFactorEnabled = false,
@@ -681,7 +696,7 @@ namespace be_authenticationInfrastructure.Migrations
                             Name = "Admin",
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEASKCiqp8PitX5z+N/lBSa69vdqH2W+/JCf20nUXyFkfLnS7FAi3qFt4NxsRaGbcwA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKbAWBrzdNXMMeV1NGcwqSka61tSVBD6J/lb6+aWJWNWkPYdZaynrcLmbheKWen58Q==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ",
                             TwoFactorEnabled = false,
@@ -751,6 +766,55 @@ namespace be_authenticationInfrastructure.Migrations
                     b.HasIndex("UserId", "BranchId");
 
                     b.ToTable("UserPermissionGroups");
+                });
+
+            modelBuilder.Entity("be_authenticationDomain.Entities.UserSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeviceId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("DeviceName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("LastSeenAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RevokedReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("RevokedAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSessions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -879,11 +943,18 @@ namespace be_authenticationInfrastructure.Migrations
 
             modelBuilder.Entity("be_authenticationDomain.Entities.RefreshToken", b =>
                 {
+                    b.HasOne("be_authenticationDomain.Entities.UserSession", "Session")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("be_authenticationDomain.Entities.User", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Session");
 
                     b.Navigation("User");
                 });
@@ -969,6 +1040,17 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("be_authenticationDomain.Entities.UserSession", b =>
+                {
+                    b.HasOne("be_authenticationDomain.Entities.User", "User")
+                        .WithMany("UserSessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("be_authenticationDomain.Entities.Branch", b =>
                 {
                     b.Navigation("UserInBranches");
@@ -1018,6 +1100,13 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Navigation("UserPermissionGroups");
 
                     b.Navigation("UserPermissions");
+
+                    b.Navigation("UserSessions");
+                });
+
+            modelBuilder.Entity("be_authenticationDomain.Entities.UserSession", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

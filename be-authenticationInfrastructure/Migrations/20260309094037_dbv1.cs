@@ -244,27 +244,25 @@ namespace be_authenticationInfrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshTokens",
+                name: "UserSessions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ReplacedByToken = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    CreatedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RevokedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IpAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    UserAgent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     DeviceName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    DeviceId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    UserAgent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    IpAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastSeenAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RevokedReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.PrimaryKey("PK_UserSessions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RefreshTokens_AspNetUsers_UserId",
+                        name: "FK_UserSessions_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -358,6 +356,42 @@ namespace be_authenticationInfrastructure.Migrations
                         principalTable: "Subsystems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUsedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ReplacedByTokenId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ParentTokenId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedByIp = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    RevokedByIp = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    ReasonRevoked = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    FamilyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_UserSessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "UserSessions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -500,8 +534,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "Avatar", "ConcurrencyStamp", "DateOfBirth", "Email", "EmailConfirmed", "IsActive", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEEz0x3FTbW0248liOHMoWGfyT1ff7JBKW5G85hDH1iECAO/Iv7zRUBiwS62Uzmo4CA==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
-                    { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", null, "admin@gmail.com", true, true, false, null, "Admin", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEASKCiqp8PitX5z+N/lBSa69vdqH2W+/JCf20nUXyFkfLnS7FAi3qFt4NxsRaGbcwA==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
+                    { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAELfi7rttGetd4r1MJM5HeXJbzTARuu1AcxTlVrelQtkGb7iPx3XMegP5ENjvF3IFbQ==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
+                    { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", null, "admin@gmail.com", true, true, false, null, "Admin", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEKbAWBrzdNXMMeV1NGcwqSka61tSVBD6J/lb6+aWJWNWkPYdZaynrcLmbheKWen58Q==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
                 });
 
             migrationBuilder.InsertData(
@@ -595,6 +629,31 @@ namespace be_authenticationInfrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_ExpiresAt",
+                table: "RefreshTokens",
+                column: "ExpiresAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_FamilyId",
+                table: "RefreshTokens",
+                column: "FamilyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_ParentTokenId",
+                table: "RefreshTokens",
+                column: "ParentTokenId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_ReplacedByTokenId",
+                table: "RefreshTokens",
+                column: "ReplacedByTokenId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_SessionId",
+                table: "RefreshTokens",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_Token",
                 table: "RefreshTokens",
                 column: "Token",
@@ -650,6 +709,21 @@ namespace be_authenticationInfrastructure.Migrations
                 name: "IX_UserPermissions_UserId_BranchId",
                 table: "UserPermissions",
                 columns: new[] { "UserId", "BranchId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSessions_CreatedAt",
+                table: "UserSessions",
+                column: "CreatedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSessions_RevokedAt",
+                table: "UserSessions",
+                column: "RevokedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSessions_UserId",
+                table: "UserSessions",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -692,10 +766,10 @@ namespace be_authenticationInfrastructure.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "PermissionGroups");
+                name: "UserSessions");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "PermissionGroups");
 
             migrationBuilder.DropTable(
                 name: "Branches");
@@ -705,6 +779,9 @@ namespace be_authenticationInfrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Functions");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "PermissionGroupTypes");

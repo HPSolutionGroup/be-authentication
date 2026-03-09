@@ -11,8 +11,8 @@ namespace be_authenticationDomain.Entities
 
         // ==== Navigate ====
 
-        public ICollection<UserPermissionGroup> UserPermissionGroups { get; set; }
-        public ICollection<UserPermission> UserPermissions { get; set; }
-        public ICollection<UserInBranch> UserInBranches { get; set; }
+        public ICollection<UserPermissionGroup> UserPermissionGroups { get; set; } = new List<UserPermissionGroup>();
+        public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
+        public ICollection<UserInBranch> UserInBranches { get; set; } = new List<UserInBranch>();
     }
 }

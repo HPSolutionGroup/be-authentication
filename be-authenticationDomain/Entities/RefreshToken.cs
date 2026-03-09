@@ -2,28 +2,28 @@
 {
     public class RefreshToken
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public string Token { get; set; } 
+        public string Token { get; set; } // Lưu Hash
 
         public DateTime CreatedAt { get; set; }
-
         public DateTime ExpiresAt { get; set; }
-
+        public DateTime? LastUsedAt { get; set; }
         public DateTime? RevokedAt { get; set; }
 
-        public string? ReplacedByToken { get; set; }
+        public Guid? ReplacedByTokenId { get; set; }
+        public Guid? ParentTokenId { get; set; }
 
         public string? CreatedByIp { get; set; }
         public string? RevokedByIp { get; set; }
-        public string? IpAddress { get; set; } // IP
-        public string? UserAgent { get; set; } // Trình duyệt
-        public string? DeviceName { get; set; } // Tên thiết bị
+        public string? ReasonRevoked { get; set; }
 
+        public Guid FamilyId { get; set; }
         // ==== Navigate ====
         public Guid UserId { get; set; }
         public User User { get; set; }
-
+        public Guid? SessionId { get; set; }
+        public UserSession? Session { get; set; }
 
         // ====  ====
         public bool IsExpired => DateTime.UtcNow >= ExpiresAt;

@@ -16,8 +16,8 @@ namespace be_authenticationDomain.Entities
 
         public Guid SubsystemId { get; set; }
         public Subsystem Subsystem { get; set; }
-        public ICollection<CommandInFunction> CommandInFunctions { get; set; }
-        public ICollection<Permission> Permissions { get; set; }
+        public ICollection<CommandInFunction> CommandInFunctions { get; set; } = new List<CommandInFunction>();
+        public ICollection<Permission> Permissions { get; set; } = new List<Permission>();
 
     }
 }

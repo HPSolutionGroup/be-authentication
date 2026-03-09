@@ -29,6 +29,7 @@ namespace be_authenticationInfrastructure.Data
         public DbSet<UserInBranch> UserInBranches { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
         public DbSet<UserPermissionGroup> UserPermissionGroups { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
 
         #endregion
 
@@ -119,6 +120,14 @@ namespace be_authenticationInfrastructure.Data
             #endregion
 
             #region PermissionGroup
+
+            builder.Entity<PermissionGroup>(entity =>
+            {
+                entity.Property(x => x.Name).IsRequired().HasMaxLength(255);
+                entity.Property(x => x.Description).HasMaxLength(500);
+                entity.HasIndex(pg => pg.GroupTypeId);
+            });
+
             builder.Entity<PermissionGroup>()
                 .HasOne(pg => pg.GroupType)
                 .WithMany(gt => gt.PermissionGroups)
@@ -135,18 +144,6 @@ namespace be_authenticationInfrastructure.Data
                 entity.Property(x => x.Name).IsRequired().HasMaxLength(255);
                 entity.Property(x => x.Description).HasMaxLength(500);
             });
-
-            builder.Entity<PermissionGroup>(entity =>
-            {
-                entity.Property(x => x.Name).IsRequired().HasMaxLength(255);
-                entity.Property(x => x.Description).HasMaxLength(500);
-                entity.HasIndex(pg => pg.GroupTypeId);
-
-                entity.HasOne(pg => pg.GroupType)
-                    .WithMany(gt => gt.PermissionGroups)
-                    .HasForeignKey(pg => pg.GroupTypeId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
             #endregion
 
             #region RefreshToken
@@ -154,21 +151,39 @@ namespace be_authenticationInfrastructure.Data
             {
                 entity.HasKey(x => x.Id);
 
-                entity.HasIndex(x => x.Token).IsUnique();
-                entity.HasIndex(x => x.UserId);
+                entity.Property(x => x.Token)
+                    .IsRequired()
+                    .HasMaxLength(500);
 
-                entity.Property(x => x.Token).IsRequired().HasMaxLength(500);
-                entity.Property(x => x.IpAddress).HasMaxLength(50);
-                entity.Property(x => x.UserAgent).HasMaxLength(1000);
-                entity.Property(x => x.DeviceName).HasMaxLength(255);
-                entity.Property(x => x.ReplacedByToken).HasMaxLength(500);
+                entity.Property(x => x.CreatedByIp)
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.RevokedByIp)
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.ReasonRevoked)
+                    .HasMaxLength(500);
+
+                entity.HasIndex(x => x.Token)
+                    .IsUnique();
+
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.SessionId);
+                entity.HasIndex(x => x.FamilyId);
+                entity.HasIndex(x => x.ExpiresAt);
+                entity.HasIndex(x => x.ReplacedByTokenId);
+                entity.HasIndex(x => x.ParentTokenId);
+                entity.HasIndex(x => x.Token).IsUnique();
 
                 entity.HasOne(x => x.User)
-                      .WithMany(u => u.RefreshTokens)
-                      .HasForeignKey(x => x.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(u => u.RefreshTokens)
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-                
+                entity.HasOne(x => x.Session)
+                    .WithMany(s => s.RefreshTokens)
+                    .HasForeignKey(x => x.SessionId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
             #endregion
 
@@ -267,6 +282,37 @@ namespace be_authenticationInfrastructure.Data
 
             builder.Entity<UserPermissionGroup>()
                 .HasIndex(x => new { x.UserId, x.BranchId });
+            #endregion
+
+            #region UserSession
+            builder.Entity<UserSession>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.DeviceName)
+                    .HasMaxLength(255);
+
+                entity.Property(x => x.DeviceId)
+                    .HasMaxLength(255);
+
+                entity.Property(x => x.UserAgent)
+                    .HasMaxLength(1000);
+
+                entity.Property(x => x.IpAddress)
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.RevokedReason)
+                    .HasMaxLength(500);
+
+                entity.HasIndex(x => x.UserId);
+                entity.HasIndex(x => x.CreatedAt);
+                entity.HasIndex(x => x.RevokedAt);
+
+                entity.HasOne(x => x.User)
+                    .WithMany(u => u.UserSessions)
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
             #endregion
 
             #endregion
