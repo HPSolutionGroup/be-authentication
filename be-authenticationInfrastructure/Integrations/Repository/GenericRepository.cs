@@ -5,7 +5,8 @@ using System.Linq.Expressions;
 
 namespace be_authenticationInfrastructure.Integrations.Repository
 {
-    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+    public class GenericRepository<TEntity> : IGenericRepository<TEntity>
+        where TEntity : class
     {
         protected readonly MyDbContext _context;
         protected readonly DbSet<TEntity> _dbSet;
@@ -16,45 +17,73 @@ namespace be_authenticationInfrastructure.Integrations.Repository
             _dbSet = context.Set<TEntity>();
         }
 
-        public async Task<TEntity?> GetByIdAsync(Guid id)
+        public async Task<TEntity?> GetByIdAsync(
+            object id, 
+            CancellationToken cancellationToken = default)
         {
-            // FindAsync được tối ưu hóa rất tốt trong EF Core để tìm kiếm theo Primary Key
-            return await _dbSet.FindAsync(id);
+            ArgumentNullException.ThrowIfNull(id);
+            return await _dbSet.FindAsync(new[] { id }, cancellationToken);
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        public async Task<TEntity?> GetByIdAsync(
+            object[] keyValues, 
+            CancellationToken cancellationToken = default)
         {
-            // Dùng ToListAsync để thực thi câu lệnh SQL và trả về data
-            return await _dbSet.ToListAsync();
+            if(keyValues is null || keyValues.Length == 0)
+                throw new ArgumentException("Key values cannot be null or empty.", nameof(keyValues));
+
+            return await _dbSet.FindAsync(keyValues, cancellationToken);
         }
 
-        public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<IReadOnlyList<TEntity>> GetAllAsync(
+            CancellationToken cancellationToken = default)
         {
-            // Lọc dữ liệu theo điều kiện truyền vào
-            return await _dbSet.Where(predicate).ToListAsync();
+            return await _dbSet
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
         }
 
-        public IQueryable<TEntity> Query()
+        public async Task<IReadOnlyList<TEntity>> FindAsync(
+            Expression<Func<TEntity, bool>> predicate,
+            CancellationToken cancellationToken = default)
         {
-            // Trả về IQueryable để tầng trên có thể linh hoạt build query (Include, OrderBy...)
-            return _dbSet.AsQueryable();
+            ArgumentNullException.ThrowIfNull(predicate);
+            return await _dbSet
+                .AsNoTracking()
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task AddAsync(TEntity entity)
+        public async Task<bool> AnyAsync(
+            Expression<Func<TEntity, bool>> predicate,
+            CancellationToken cancellationToken = default)
         {
-            // Chỉ thêm vào tracking trên RAM, UnitOfWork sẽ gọi SaveChanges sau
-            await _dbSet.AddAsync(entity);
+            ArgumentNullException.ThrowIfNull(predicate);
+            return await _dbSet.AnyAsync(predicate, cancellationToken);
+        }
+
+        public IQueryable<TEntity> Query(bool asNoTracking = true)
+        {
+            return asNoTracking
+                ? _dbSet.AsNoTracking()
+                : _dbSet;
+        }
+
+        public Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+            return _dbSet.AddAsync(entity, cancellationToken).AsTask();
         }
 
         public void Update(TEntity entity)
         {
-            // Đánh dấu entity là Modified trên RAM
+            ArgumentNullException.ThrowIfNull(entity);
             _dbSet.Update(entity);
         }
 
         public void Delete(TEntity entity)
         {
-            // Đánh dấu entity là Deleted trên RAM
+            ArgumentNullException.ThrowIfNull(entity);
             _dbSet.Remove(entity);
         }
     }

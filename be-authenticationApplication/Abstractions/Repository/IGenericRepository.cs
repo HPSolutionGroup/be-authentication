@@ -1,23 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace be_authenticationApplication.Abstractions.Repository
 {
     public interface IGenericRepository<T> where T : class
     {
-        Task<T?> GetByIdAsync(Guid id);
+        Task<T?> GetByIdAsync(
+            object id, 
+            CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<T?> GetByIdAsync(
+            object[] keyValues, 
+            CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+        Task<IReadOnlyList<T>> GetAllAsync(
+            CancellationToken cancellationToken = default);
 
-        IQueryable<T> Query();
+        Task<IReadOnlyList<T>> FindAsync(
+            Expression<Func<T, bool>> predicate,
+            CancellationToken cancellationToken = default);
 
-        Task AddAsync(T entity);
+        Task<bool> AnyAsync(
+            Expression<Func<T, bool>> predicate,
+            CancellationToken cancellationToken = default);
+
+        IQueryable<T> Query(bool asNoTracking = true);
+
+        Task AddAsync(T entity, CancellationToken cancellationToken = default);
 
         void Update(T entity);
 

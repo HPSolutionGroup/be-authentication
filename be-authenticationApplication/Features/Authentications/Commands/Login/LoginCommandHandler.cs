@@ -35,9 +35,10 @@ namespace be_authenticationApplication.Features.Authentications.Commands.Login
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            var user = await _unitOfWork.Repository<User>().Query()
-                .FirstOrDefaultAsync(u => u.Email == request.Email);
-            
+            var user = await _unitOfWork.Repository<User>()
+                .Query()
+                .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
+
             if (user == null)
                 throw new CustomException.UnAuthorizedException(_localizer.Get("auth", AuthKeys.INVALID_CREDENTIALS));
 

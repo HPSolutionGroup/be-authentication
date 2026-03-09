@@ -1,67 +1,109 @@
 ﻿using be_authenticationApplication.Abstractions.Repository;
 using be_authenticationInfrastructure.Data;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Collections;
 
 namespace be_authenticationInfrastructure.Integrations.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly MyDbContext _context;
+        private readonly Dictionary<Type, object> _repositories = new();
 
         private IDbContextTransaction? _transaction;
-
-        private Hashtable _repositories;
+        private bool _disposed;
 
         public UnitOfWork(MyDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public IGenericRepository<T> Repository<T>() where T : class
         {
-            if (_repositories == null)
-                _repositories = new Hashtable();
+            var type = typeof(T);
 
-            var type = typeof(T).Name;
-
-            if (!_repositories.ContainsKey(type))
+            if (!_repositories.TryGetValue(type, out var repository))
             {
-                var repository = new GenericRepository<T>(_context);
-
-                _repositories.Add(type, repository);
+                repository = new GenericRepository<T>(_context);
+                _repositories[type] = repository;
             }
 
-            return (IGenericRepository<T>)_repositories[type];
+            return (IGenericRepository<T>)repository;
         }
 
-        public async Task<int> SaveChangesAsync()
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.SaveChangesAsync();
+            return _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task BeginTransactionAsync()
-        {
-            _transaction = await _context.Database.BeginTransactionAsync();
-        }
-
-        public async Task CommitTransactionAsync()
-        {
-            await _context.SaveChangesAsync();
-
-            if (_transaction != null)
-                await _transaction.CommitAsync();
-        }
-
-        public async Task RollbackTransactionAsync()
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
             if (_transaction != null)
-                await _transaction.RollbackAsync();
+                throw new InvalidOperationException("A transaction is already active.");
+
+            _transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        }
+
+        public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (_transaction == null)
+                throw new InvalidOperationException("No active transaction to commit.");
+
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+                await _transaction.CommitAsync(cancellationToken);
+            }
+            finally
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+        public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (_transaction == null)
+                return;
+
+            try
+            {
+                await _transaction.RollbackAsync(cancellationToken);
+                _context.ChangeTracker.Clear();
+            }
+            finally
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
 
         public void Dispose()
         {
+            if (_disposed) return;
+
+            _transaction?.Dispose();
+            _transaction = null;
+
             _context.Dispose();
+
+            _disposed = true;
+            GC.SuppressFinalize(this);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_disposed) return;
+
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+
+            await _context.DisposeAsync();
+
+            _disposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

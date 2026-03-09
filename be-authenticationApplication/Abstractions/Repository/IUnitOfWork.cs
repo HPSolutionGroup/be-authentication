@@ -1,15 +1,15 @@
 ﻿namespace be_authenticationApplication.Abstractions.Repository
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork : IDisposable, IAsyncDisposable
     {
         IGenericRepository<T> Repository<T>() where T : class;
 
-        Task<int> SaveChangesAsync();
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-        Task BeginTransactionAsync();
+        Task BeginTransactionAsync(CancellationToken cancellationToken = default);
 
-        Task CommitTransactionAsync();
+        Task CommitTransactionAsync(CancellationToken cancellationToken = default);
 
-        Task RollbackTransactionAsync();
+        Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
     }
 }
