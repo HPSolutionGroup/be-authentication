@@ -3,7 +3,10 @@ using be_authenticationApplication.Abstractions.Repository;
 using be_authenticationApplication.Common;
 using be_authenticationDomain.CustomException;
 using be_authenticationDomain.Entities;
+using be_localization.Abstractions;
+using be_localization.Enums;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace be_authenticationInfrastructure.Integrations.Identity
 {
@@ -13,24 +16,43 @@ namespace be_authenticationInfrastructure.Integrations.Identity
         private readonly IConfiguration _configuration;
         private readonly IRefreshTokenHasher _refreshTokenHasher;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ILogger<RefreshTokenManager> _logger;
+        private readonly IJsonLocalizationService _localizer;
 
         public RefreshTokenManager(
             IRefreshTokenRepository refreshTokenRepository,
             IConfiguration configuration,
             IRefreshTokenHasher refreshTokenHasher,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            ILogger<RefreshTokenManager> logger,
+            IJsonLocalizationService localizer)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _configuration = configuration;
             _refreshTokenHasher = refreshTokenHasher;
             _dateTimeProvider = dateTimeProvider;
+            _logger = logger;
+            _localizer = localizer;
         }
-
 
         // Lấy thời gian expiry refreshtoken trong appsettings
         private int RefreshExpiryDays => int.Parse(_configuration["Jwt:RefreshTokenExpirationDays"] ?? "7");
 
         #region Create Refresh Token
+
+        /// <summary> 
+        /// Create a new refresh token for a user and persist it to the database.
+        /// - Hash the refresh token before saving.
+        /// - Set created time, expiration time, and creator IP.
+        /// - Generate a new FamilyId to start a refresh token chain.
+        /// - Optionally attach the token to a login session.
+        /// 
+        /// Tạo mới một refresh token cho user và lưu vào database.
+        /// - Hash refresh token trước khi lưu.
+        /// - Gán thời gian tạo, thời gian hết hạn, IP tạo token.
+        /// - Tạo mới FamilyId để bắt đầu một chuỗi refresh token.
+        /// - Có thể gắn với SessionId nếu hệ thống quản lý phiên đăng nhập theo thiết bị.
+        /// </summary>
 
         public async Task CreateTokenAsync(
             Guid userId,
@@ -39,10 +61,12 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             Guid? sessionId = null)
         {
             if (userId == Guid.Empty)
-                throw new CustomException.InvalidDataException("UserId không hợp lệ.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.INVALID_USER));
 
             if (string.IsNullOrWhiteSpace(tokenString))
-                throw new CustomException.InvalidDataException("Refresh token không được để trống.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             var now = _dateTimeProvider.UtcNow;
 
@@ -64,6 +88,21 @@ namespace be_authenticationInfrastructure.Integrations.Identity
         #endregion
 
         #region Verify And Rotate Refresh Token
+        ///<summary>
+        /// Verify the current refresh token and rotate to a new one.
+        /// - Validate the old token.
+        /// - Detect revoked/reused token.
+        /// - Revoke the old token with reason "Rotated".
+        /// - Create a new token in the same family.
+        /// - Return the user for generating a new access token.
+        ///
+        /// Xác thực refresh token hiện tại và xoay vòng sang token mới.
+        /// - Kiểm tra token cũ có hợp lệ không.
+        /// - Phát hiện token đã bị revoke hoặc bị reuse.
+        /// - Thu hồi token cũ với lý do "Rotated".
+        /// - Tạo token mới trong cùng family.
+        /// - Trả về user để sinh access token mới.
+        /// </summary>
 
         public async Task<User> VerifyAndRotateTokenAsync(
             string oldTokenString,
@@ -71,10 +110,12 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             string ipAddress)
         {
             if (string.IsNullOrWhiteSpace(oldTokenString))
-                throw new CustomException.InvalidDataException("Refresh token cũ không được để trống.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             if (string.IsNullOrWhiteSpace(newTokenString))
-                throw new CustomException.InvalidDataException("Refresh token mới không được để trống.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             var oldTokenHash = _refreshTokenHasher.Hash(oldTokenString);
 
@@ -83,22 +124,15 @@ namespace be_authenticationInfrastructure.Integrations.Identity
 
             if (tokenEntity == null)
                 throw new CustomException.UnAuthorizedException(
-                    "Refresh token không hợp lệ hoặc không tồn tại.");
+                    _localizer.Get("auth", AuthKeys.INVALID_REFRESH_TOKEN));
 
             if (tokenEntity.IsRevoked)
-            {
-                await RevokeFamilyAsync(
-                    tokenEntity.FamilyId,
-                    ipAddress,
-                    "Refresh token reuse detected");
-
                 throw new CustomException.UnAuthorizedException(
-                    "Phát hiện truy cập bất thường. Phiên đăng nhập đã bị thu hồi.");
-            }
+                    _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REUSE_DETECTED));
 
             if (tokenEntity.IsExpired)
                 throw new CustomException.UnAuthorizedException(
-                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                    _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_EXPIRED));
 
             var now = _dateTimeProvider.UtcNow;
 
@@ -125,12 +159,28 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             await _refreshTokenRepository.AddAsync(newRefreshToken);
             await _refreshTokenRepository.SaveChangesAsync();
 
+            _logger.LogDebug(
+                "Refresh token rotated successfully. UserId={UserId}, OldTokenId={OldTokenId}, NewTokenId={NewTokenId}, FamilyId={FamilyId}, SessionId={SessionId}, IpAddress={IpAddress}",
+                tokenEntity.UserId,
+                tokenEntity.Id,
+                newRefreshToken.Id,
+                tokenEntity.FamilyId,
+                tokenEntity.SessionId,
+                ipAddress);
+
             return tokenEntity.User;
         }
 
         #endregion
 
         #region Revoke Single Token
+        /// <summary>
+        /// Revoke a single refresh token.
+        /// Used for current-device logout or manual token invalidation.
+        ///
+        /// Thu hồi một refresh token cụ thể.
+        /// Dùng cho logout thiết bị hiện tại hoặc thu hồi token thủ công.
+        /// </summary>
 
         public async Task RevokeTokenAsync(
             string tokenString,
@@ -138,17 +188,26 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             string reason = "Manual revoke")
         {
             if (string.IsNullOrWhiteSpace(tokenString))
-                throw new CustomException.InvalidDataException("Refresh token không được để trống.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             var tokenHash = _refreshTokenHasher.Hash(tokenString);
 
             var tokenEntity = await _refreshTokenRepository.GetByTokenHashAsync(tokenHash);
 
             if (tokenEntity == null)
-                throw new CustomException.DataNotFoundException("Không tìm thấy refresh token.");
+                throw new CustomException.DataNotFoundException(
+                    _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_NOT_FOUND));
 
             if (!tokenEntity.IsActive)
+            {
+                _logger.LogDebug(
+                    "Revoke token skipped: token is already inactive. TokenId={TokenId}, UserId={UserId}, IpAddress={IpAddress}",
+                    tokenEntity.Id, tokenEntity.UserId, ipAddress);
+
                 return;
+            }
+
             var now = _dateTimeProvider.UtcNow;
 
             tokenEntity.RevokedAt = now;
@@ -157,11 +216,22 @@ namespace be_authenticationInfrastructure.Integrations.Identity
 
             _refreshTokenRepository.Update(tokenEntity);
             await _refreshTokenRepository.SaveChangesAsync();
+
+            _logger.LogDebug(
+                "Refresh token revoked successfully. TokenId={TokenId}, UserId={UserId}, Reason={Reason}, IpAddress={IpAddress}",
+                tokenEntity.Id, tokenEntity.UserId, reason, ipAddress);
         }
 
         #endregion
 
         #region Revoke Token Family
+        /// <summary>
+        /// Revoke all active refresh tokens in the same family.
+        /// Typically used when token reuse is detected.
+        ///
+        /// Thu hồi toàn bộ refresh token còn active trong cùng một family.
+        /// Thường dùng khi phát hiện token bị reuse.
+        /// </summary>
 
         public async Task RevokeFamilyAsync(
             Guid familyId,
@@ -169,12 +239,20 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             string reason)
         {
             if (familyId == Guid.Empty)
-                throw new CustomException.InvalidDataException("FamilyId không hợp lệ.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.INVALID_REQUEST));
 
             var tokens = await _refreshTokenRepository.GetActiveByFamilyIdAsync(familyId);
 
             if (!tokens.Any())
+            {
+                _logger.LogDebug(
+                    "Revoke token family skipped: no active tokens found. FamilyId={FamilyId}, IpAddress={IpAddress}",
+                    familyId, ipAddress);
+
                 return;
+            }
+
             var now = _dateTimeProvider.UtcNow;
 
             foreach (var token in tokens)
@@ -186,11 +264,22 @@ namespace be_authenticationInfrastructure.Integrations.Identity
 
             _refreshTokenRepository.UpdateRange(tokens);
             await _refreshTokenRepository.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Refresh token family revoked. FamilyId={FamilyId}, Count={Count}, Reason={Reason}, IpAddress={IpAddress}",
+                familyId, tokens.Count, reason, ipAddress);
         }
 
         #endregion
 
         #region Revoke Session Tokens
+        /// <summary>
+        /// Revoke all active refresh tokens belonging to a specific session.
+        /// Typically used for single-device logout.
+        ///
+        /// Thu hồi toàn bộ refresh token còn active thuộc một session cụ thể.
+        /// Thường dùng khi logout một thiết bị cụ thể.
+        /// </summary>
 
         public async Task RevokeSessionAsync(
             Guid sessionId,
@@ -198,12 +287,20 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             string reason = "Session revoked")
         {
             if (sessionId == Guid.Empty)
-                throw new CustomException.InvalidDataException("SessionId không hợp lệ.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.INVALID_SESSION));
 
             var tokens = await _refreshTokenRepository.GetActiveBySessionIdAsync(sessionId);
 
             if (!tokens.Any())
+            {
+                _logger.LogDebug(
+                    "Revoke session tokens skipped: no active tokens found. SessionId={SessionId}, IpAddress={IpAddress}",
+                    sessionId, ipAddress);
+
                 return;
+            }
+
             var now = _dateTimeProvider.UtcNow;
 
             foreach (var token in tokens)
@@ -215,11 +312,22 @@ namespace be_authenticationInfrastructure.Integrations.Identity
 
             _refreshTokenRepository.UpdateRange(tokens);
             await _refreshTokenRepository.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Session tokens revoked successfully. SessionId={SessionId}, Count={Count}, Reason={Reason}, IpAddress={IpAddress}",
+                sessionId, tokens.Count, reason, ipAddress);
         }
 
         #endregion
 
         #region Revoke All User Tokens
+        /// <summary>
+        /// Revoke all active refresh tokens of a user.
+        /// Typically used for logout-all-devices or account compromise handling.
+        ///
+        /// Thu hồi toàn bộ refresh token còn active của một user.
+        /// Thường dùng khi logout tất cả thiết bị hoặc xử lý tài khoản bị nghi ngờ lộ.
+        /// </summary>
 
         public async Task RevokeAllUserTokensAsync(
             Guid userId,
@@ -227,12 +335,20 @@ namespace be_authenticationInfrastructure.Integrations.Identity
             string reason = "Revoke all devices")
         {
             if (userId == Guid.Empty)
-                throw new CustomException.InvalidDataException("UserId không hợp lệ.");
+                throw new CustomException.InvalidDataException(
+                    _localizer.Get("auth", AuthKeys.INVALID_USER));
 
             var tokens = await _refreshTokenRepository.GetActiveByUserIdAsync(userId);
 
             if (!tokens.Any())
+            {
+                _logger.LogDebug(
+                    "Revoke all user tokens skipped: no active tokens found. UserId={UserId}, IpAddress={IpAddress}",
+                    userId, ipAddress);
+
                 return;
+            }
+
             var now = _dateTimeProvider.UtcNow;
 
             foreach (var token in tokens)
@@ -244,6 +360,10 @@ namespace be_authenticationInfrastructure.Integrations.Identity
 
             _refreshTokenRepository.UpdateRange(tokens);
             await _refreshTokenRepository.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "All active refresh tokens for user were revoked. UserId={UserId}, Count={Count}, Reason={Reason}, IpAddress={IpAddress}",
+                userId, tokens.Count, reason, ipAddress);
         }
 
         #endregion

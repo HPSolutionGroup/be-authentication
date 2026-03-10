@@ -32,7 +32,14 @@
     "MODULE_CLAIM_INVALID": "Không hợp lệ: Module trong claim không đúng hoặc thiếu.",
     "MODULE_INVALID": "Module không hợp lệ hoặc không tồn tại.",
     "PASSWORDS_DO_NOT_MATCH": "Mật khẩu xác nhận không khớp.",
-    "INVALID_OLD_PASSWORD": "Mật khẩu cũ không chính xác."
+    "INVALID_OLD_PASSWORD": "Mật khẩu cũ không chính xác.",
+    "INVALID_USER": "Người dùng không hợp lệ.",
+    "REFRESH_TOKEN_REQUIRED": "Refresh token không được để trống.",
+    "REFRESH_TOKEN_REUSE_DETECTED": "Phát hiện truy cập bất thường. Phiên đăng nhập đã bị thu hồi.",
+    "REFRESH_TOKEN_EXPIRED": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    "REFRESH_TOKEN_NOT_FOUND": "Không tìm thấy refresh token.",
+    "INVALID_SESSION": "Phiên đăng nhập không hợp lệ.",
+    "INVALID_REQUEST": "Yêu cầu không hợp lệ."
   },
   "common": {
     "DATA_LOADED_SUCCESSFULLY": "Tải dữ liệu thành công.",
