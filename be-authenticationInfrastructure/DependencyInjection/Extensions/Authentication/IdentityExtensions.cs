@@ -11,12 +11,14 @@ using System.Security.Cryptography;
 
 namespace be_authenticationInfrastructure.DependencyInjection.Extensions.Authentication
 {
-    public static class JwtExtensions
+    public static class IdentityExtensions
     {
-        public static IServiceCollection AddJwtExtension(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddIdentityExtension(this IServiceCollection services, IConfiguration configuration)
         {      
             services.AddSingleton<IJwtService, JwtService>();
             services.AddScoped<IPasswordHasher,PasswordHasher>();
+            services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
+            services.AddScoped<IRefreshTokenManager, RefreshTokenManager>();
 
             var publicKeyPath = configuration["Jwt:PublicKeyPath"];
             var rsa = RSA.Create();

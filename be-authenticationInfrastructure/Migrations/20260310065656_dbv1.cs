@@ -67,9 +67,9 @@ namespace be_authenticationInfrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -86,9 +86,9 @@ namespace be_authenticationInfrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -106,9 +106,9 @@ namespace be_authenticationInfrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -127,9 +127,9 @@ namespace be_authenticationInfrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -305,9 +305,9 @@ namespace be_authenticationInfrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -336,9 +336,9 @@ namespace be_authenticationInfrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -534,8 +534,8 @@ namespace be_authenticationInfrastructure.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "Avatar", "ConcurrencyStamp", "DateOfBirth", "Email", "EmailConfirmed", "IsActive", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAELfi7rttGetd4r1MJM5HeXJbzTARuu1AcxTlVrelQtkGb7iPx3XMegP5ENjvF3IFbQ==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
-                    { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", null, "admin@gmail.com", true, true, false, null, "Admin", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEKbAWBrzdNXMMeV1NGcwqSka61tSVBD6J/lb6+aWJWNWkPYdZaynrcLmbheKWen58Q==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
+                    { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAELBGhiMsLAmVdv6cFB6s9aX7W+QS0LY8PaaP2FOFGOc5NOVeKgmG+dDRsZsO9F+mwQ==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
+                    { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", null, "admin@gmail.com", true, true, false, null, "Admin", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEDOUjMVec07PonyDys3nutMNz9F1MeBM9vAtBpAtC4B8NxwliM620y+X6m19aeDdHg==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
                 });
 
             migrationBuilder.InsertData(

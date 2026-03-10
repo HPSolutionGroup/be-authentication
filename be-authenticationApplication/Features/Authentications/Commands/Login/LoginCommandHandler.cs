@@ -1,5 +1,6 @@
 ﻿using be_authenticationApplication.Abstractions.Identity;
 using be_authenticationApplication.Abstractions.Repository;
+using be_authenticationApplication.Common;
 using be_authenticationApplication.Features.Authentications.DTOs;
 using be_authenticationDomain.CustomException;
 using be_authenticationDomain.Entities;
@@ -18,19 +19,25 @@ namespace be_authenticationApplication.Features.Authentications.Commands.Login
         private readonly UserManager<User> _userManager;
         private readonly IJsonLocalizationService _localizer;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IRefreshTokenManager _refreshTokenManager;
+        private readonly IUserContext _userContext;
+
         public LoginCommandHandler(
             IPasswordHasher passwordHasher,
             IJwtService jwtService,
             UserManager<User> userManager,
             IJsonLocalizationService localizer,
-            IUnitOfWork unitOfWork
-            )
+            IUnitOfWork unitOfWork,
+            IRefreshTokenManager refreshTokenManager,
+            IUserContext userContext)
         {
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
             _userManager = userManager;
             _localizer = localizer;
             _unitOfWork = unitOfWork;
+            _refreshTokenManager = refreshTokenManager;
+            _userContext = userContext;
         }
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -67,11 +74,22 @@ namespace be_authenticationApplication.Features.Authentications.Commands.Login
 
             var refreshToken = _jwtService.GenerateRefreshToken();
 
-            await _userManager.SetAuthenticationTokenAsync(
-                user,
-                "HPAuthentication",
-                "RefreshToken",
-                refreshToken);
+            #region Relotation with Identity - NonUses
+            //await _userManager.SetAuthenticationTokenAsync(
+            //    user,
+            //    "HPAuthentication",
+            //    "RefreshToken",
+            //    refreshToken);
+            #endregion
+
+            var ipAddress = _userContext.GetIpAddress();
+
+            await _refreshTokenManager.CreateTokenAsync(
+                userId: user.Id,
+                tokenString: refreshToken,
+                ipAddress: ipAddress ?? "unknown",
+                sessionId: null
+            );
 
             return new LoginResponse
             {

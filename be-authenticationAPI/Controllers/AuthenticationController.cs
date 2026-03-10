@@ -1,13 +1,11 @@
 ﻿using be_authenticationApplication.Features.Authentications.Commands.Login;
+using be_authenticationApplication.Features.Authentications.Commands.RefreshToken;
 using be_localization.Abstractions;
 using be_localization.Enums;
 using be_localization.Web;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Threading;
 
 namespace be_authenticationAPI.Controllers
 {
@@ -36,6 +34,23 @@ namespace be_authenticationAPI.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             return CustomLocalizedResult("auth", AuthKeys.LOGIN_SUCCESS, result);
         }
+        #endregion
+
+        #region Refresh Token
+
+        [HttpPost("refresh-token")]
+        [SwaggerOperation(
+            Summary = "Làm mới access token",
+            Description = "Sử dụng refresh token để cấp lại access token và refresh token mới."
+        )]
+        public async Task<IActionResult> RefreshToken(
+            [FromBody] RefreshTokenCommand command,
+            CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return CustomLocalizedResult("auth", AuthKeys.REFRESH_SUCCESS, result);
+        }
+
         #endregion
     }
 }

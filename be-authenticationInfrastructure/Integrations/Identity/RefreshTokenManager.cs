@@ -1,150 +1,251 @@
 ﻿using be_authenticationApplication.Abstractions.Identity;
 using be_authenticationApplication.Abstractions.Repository;
+using be_authenticationApplication.Common;
+using be_authenticationDomain.CustomException;
 using be_authenticationDomain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace be_authenticationInfrastructure.Integrations.Identity
 {
     public class RefreshTokenManager : IRefreshTokenManager
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IConfiguration _configuration;
+        private readonly IRefreshTokenHasher _refreshTokenHasher;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public RefreshTokenManager(
-            IUnitOfWork unitOfWork,
-            IConfiguration configuration
-            ) 
+            IRefreshTokenRepository refreshTokenRepository,
+            IConfiguration configuration,
+            IRefreshTokenHasher refreshTokenHasher,
+            IDateTimeProvider dateTimeProvider)
         {
-            _unitOfWork = unitOfWork;
+            _refreshTokenRepository = refreshTokenRepository;
             _configuration = configuration;
+            _refreshTokenHasher = refreshTokenHasher;
+            _dateTimeProvider = dateTimeProvider;
         }
 
-        #region 1. Tạo Refresh Token mới (Dùng lúc Login)
-        public async Task CreateTokenAsync(Guid userId, string tokenString, string ipAddress, string userAgent, string deviceName)
+
+        // Lấy thời gian expiry refreshtoken trong appsettings
+        private int RefreshExpiryDays => int.Parse(_configuration["Jwt:RefreshTokenExpirationDays"] ?? "7");
+
+        #region Create Refresh Token
+
+        public async Task CreateTokenAsync(
+            Guid userId,
+            string tokenString,
+            string ipAddress,
+            Guid? sessionId = null)
         {
-            var refreshExpiry = int.Parse(_configuration["Jwt:RefreshTokenExpirationDays"] ?? "7");
+            if (userId == Guid.Empty)
+                throw new CustomException.InvalidDataException("UserId không hợp lệ.");
+
+            if (string.IsNullOrWhiteSpace(tokenString))
+                throw new CustomException.InvalidDataException("Refresh token không được để trống.");
+
+            var now = _dateTimeProvider.UtcNow;
 
             var refreshToken = new RefreshToken
             {
                 UserId = userId,
-                Token = tokenString,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(refreshExpiry),
-                CreatedByIp = ipAddress
+                Token = _refreshTokenHasher.Hash(tokenString),
+                CreatedAt = now,
+                ExpiresAt = now.AddDays(RefreshExpiryDays),
+                CreatedByIp = ipAddress,
+                FamilyId = Guid.NewGuid(),
+                SessionId = sessionId
             };
 
-            await _unitOfWork.Repository<RefreshToken>().AddAsync(refreshToken);
-            await _unitOfWork.SaveChangesAsync();
+            await _refreshTokenRepository.AddAsync(refreshToken);
+            await _refreshTokenRepository.SaveChangesAsync();
         }
+
         #endregion
 
-        #region Refresh Token
-        public async Task<User> VerifyAndRotateTokenAsync(string oldTokenString, string newTokenString, string ipAddress, string userAgent)
-        {
-            var tokenRepo = _unitOfWork.Repository<RefreshToken>();
+        #region Verify And Rotate Refresh Token
 
-            // 1. Tìm Token trong DB, bắt buộc Include User để tí nữa Handler dùng
-            var tokenEntity = await tokenRepo.Query()
-                .Include(x => x.User)
-                .SingleOrDefaultAsync(x => x.Token == oldTokenString);
+        public async Task<User> VerifyAndRotateTokenAsync(
+            string oldTokenString,
+            string newTokenString,
+            string ipAddress)
+        {
+            if (string.IsNullOrWhiteSpace(oldTokenString))
+                throw new CustomException.InvalidDataException("Refresh token cũ không được để trống.");
+
+            if (string.IsNullOrWhiteSpace(newTokenString))
+                throw new CustomException.InvalidDataException("Refresh token mới không được để trống.");
+
+            var oldTokenHash = _refreshTokenHasher.Hash(oldTokenString);
+
+            var tokenEntity = await _refreshTokenRepository
+                .GetByTokenHashAsync(oldTokenHash, includeUser: true);
 
             if (tokenEntity == null)
-                throw new Exception("Token không hợp lệ hoặc không tồn tại.");
+                throw new CustomException.UnAuthorizedException(
+                    "Refresh token không hợp lệ hoặc không tồn tại.");
 
-            // 2. KỊCH BẢN BỊ HACK: Token gửi lên đã bị thu hồi trước đó
             if (tokenEntity.IsRevoked)
             {
-                // Gọi hàm đệ quy để khóa toàn bộ các Token con cháu
-                await RevokeDescendantTokens(tokenEntity, ipAddress);
-                tokenRepo.Update(tokenEntity);
-                await _unitOfWork.SaveChangesAsync();
+                await RevokeFamilyAsync(
+                    tokenEntity.FamilyId,
+                    ipAddress,
+                    "Refresh token reuse detected");
 
-                // Quăng Exception để Handler bắt và trả về HTTP 401 Unauthorized
-                throw new Exception("Phát hiện truy cập bất thường. Phiên đăng nhập đã bị hủy để bảo vệ tài khoản!");
+                throw new CustomException.UnAuthorizedException(
+                    "Phát hiện truy cập bất thường. Phiên đăng nhập đã bị thu hồi.");
             }
 
-            // 3. KỊCH BẢN HẾT HẠN
             if (tokenEntity.IsExpired)
-                throw new Exception("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                throw new CustomException.UnAuthorizedException(
+                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
 
-            // ==========================================
-            // 4. TOKEN HỢP LỆ -> TIẾN HÀNH XOAY VÒNG
-            // ==========================================
+            var now = _dateTimeProvider.UtcNow;
 
-            // Thu hồi token cũ và trỏ tới token mới
-            tokenEntity.RevokedAt = DateTime.UtcNow;
+            tokenEntity.LastUsedAt = now;
+            tokenEntity.RevokedAt = now;
             tokenEntity.RevokedByIp = ipAddress;
-            
+            tokenEntity.ReasonRevoked = "Rotated";
 
-            // Tạo token mới
-            var newRefreshTokenEntity = new RefreshToken
+            var newRefreshToken = new RefreshToken
             {
                 UserId = tokenEntity.UserId,
-                Token = newTokenString,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(7),
-                CreatedByIp = ipAddress
+                Token = _refreshTokenHasher.Hash(newTokenString),
+                CreatedAt = now,
+                ExpiresAt = now.AddDays(RefreshExpiryDays),
+                CreatedByIp = ipAddress,
+                FamilyId = tokenEntity.FamilyId,
+                ParentTokenId = tokenEntity.Id,
+                SessionId = tokenEntity.SessionId
             };
 
-            tokenEntity.ReplacedByTokenId = newRefreshTokenEntity.Id;
+            tokenEntity.ReplacedByTokenId = newRefreshToken.Id;
 
-            // Lưu cả 2 sự thay đổi vào DB trong cùng 1 Transaction
-            await tokenRepo.AddAsync(newRefreshTokenEntity);
-            tokenRepo.Update(tokenEntity);
+            _refreshTokenRepository.Update(tokenEntity);
+            await _refreshTokenRepository.AddAsync(newRefreshToken);
+            await _refreshTokenRepository.SaveChangesAsync();
 
-            await _unitOfWork.SaveChangesAsync();
-
-            // Trả đối tượng User về cho Handler để nó tiếp tục gọi JwtService sinh JWT
             return tokenEntity.User;
         }
+
         #endregion
 
-        #region Revoke Token 
-        public async Task RevokeTokenAsync(string tokenString, string ipAddress)
+        #region Revoke Single Token
+
+        public async Task RevokeTokenAsync(
+            string tokenString,
+            string ipAddress,
+            string reason = "Manual revoke")
         {
-            var tokenRepo = _unitOfWork.Repository<RefreshToken>();
+            if (string.IsNullOrWhiteSpace(tokenString))
+                throw new CustomException.InvalidDataException("Refresh token không được để trống.");
 
-            var tokenEntity = await tokenRepo.Query()
-                .SingleOrDefaultAsync(x => x.Token == tokenString);
+            var tokenHash = _refreshTokenHasher.Hash(tokenString);
 
-            // Nếu không tìm thấy hoặc Token đã bị thu hồi/hết hạn rồi thì không làm gì cả
-            if (tokenEntity == null || !tokenEntity.IsActive)
+            var tokenEntity = await _refreshTokenRepository.GetByTokenHashAsync(tokenHash);
+
+            if (tokenEntity == null)
+                throw new CustomException.DataNotFoundException("Không tìm thấy refresh token.");
+
+            if (!tokenEntity.IsActive)
                 return;
+            var now = _dateTimeProvider.UtcNow;
 
-            tokenEntity.RevokedAt = DateTime.UtcNow;
+            tokenEntity.RevokedAt = now;
             tokenEntity.RevokedByIp = ipAddress;
+            tokenEntity.ReasonRevoked = reason;
 
-            tokenRepo.Update(tokenEntity);
-            await _unitOfWork.SaveChangesAsync();
+            _refreshTokenRepository.Update(tokenEntity);
+            await _refreshTokenRepository.SaveChangesAsync();
         }
+
         #endregion
 
-        #region Helper
-        private async Task RevokeDescendantTokens(RefreshToken token, string ipAddress)
+        #region Revoke Token Family
+
+        public async Task RevokeFamilyAsync(
+            Guid familyId,
+            string ipAddress,
+            string reason)
         {
-            if (token.ReplacedByTokenId != null)
+            if (familyId == Guid.Empty)
+                throw new CustomException.InvalidDataException("FamilyId không hợp lệ.");
+
+            var tokens = await _refreshTokenRepository.GetActiveByFamilyIdAsync(familyId);
+
+            if (!tokens.Any())
+                return;
+            var now = _dateTimeProvider.UtcNow;
+
+            foreach (var token in tokens)
             {
-                var tokenRepo = _unitOfWork.Repository<RefreshToken>();
-
-                var childToken = await tokenRepo.Query()
-                    .SingleOrDefaultAsync(x => x.Id == token.ReplacedByTokenId);
-
-                if (childToken != null)
-                {
-                    if (childToken.IsActive)
-                    {
-                        childToken.RevokedAt = DateTime.UtcNow;
-                        childToken.RevokedByIp = ipAddress;
-                        tokenRepo.Update(childToken);
-                    }
-                    else
-                    {
-                        await RevokeDescendantTokens(childToken, ipAddress);
-                    }
-                }
+                token.RevokedAt = now;
+                token.RevokedByIp = ipAddress;
+                token.ReasonRevoked = reason;
             }
+
+            _refreshTokenRepository.UpdateRange(tokens);
+            await _refreshTokenRepository.SaveChangesAsync();
         }
+
+        #endregion
+
+        #region Revoke Session Tokens
+
+        public async Task RevokeSessionAsync(
+            Guid sessionId,
+            string ipAddress,
+            string reason = "Session revoked")
+        {
+            if (sessionId == Guid.Empty)
+                throw new CustomException.InvalidDataException("SessionId không hợp lệ.");
+
+            var tokens = await _refreshTokenRepository.GetActiveBySessionIdAsync(sessionId);
+
+            if (!tokens.Any())
+                return;
+            var now = _dateTimeProvider.UtcNow;
+
+            foreach (var token in tokens)
+            {
+                token.RevokedAt = now;
+                token.RevokedByIp = ipAddress;
+                token.ReasonRevoked = reason;
+            }
+
+            _refreshTokenRepository.UpdateRange(tokens);
+            await _refreshTokenRepository.SaveChangesAsync();
+        }
+
+        #endregion
+
+        #region Revoke All User Tokens
+
+        public async Task RevokeAllUserTokensAsync(
+            Guid userId,
+            string ipAddress,
+            string reason = "Revoke all devices")
+        {
+            if (userId == Guid.Empty)
+                throw new CustomException.InvalidDataException("UserId không hợp lệ.");
+
+            var tokens = await _refreshTokenRepository.GetActiveByUserIdAsync(userId);
+
+            if (!tokens.Any())
+                return;
+            var now = _dateTimeProvider.UtcNow;
+
+            foreach (var token in tokens)
+            {
+                token.RevokedAt = now;
+                token.RevokedByIp = ipAddress;
+                token.ReasonRevoked = reason;
+            }
+
+            _refreshTokenRepository.UpdateRange(tokens);
+            await _refreshTokenRepository.SaveChangesAsync();
+        }
+
         #endregion
     }
 }
