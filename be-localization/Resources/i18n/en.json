@@ -39,7 +39,11 @@
     "REFRESH_TOKEN_EXPIRED": "The login session has expired. Please sign in again.",
     "REFRESH_TOKEN_NOT_FOUND": "Refresh token not found.",
     "INVALID_SESSION": "Invalid login session.",
-    "INVALID_REQUEST": "Invalid request."
+    "INVALID_REQUEST": "Invalid request.",
+    "EMAIL_REQUIRED": "Please enter your email.",
+    "EMAIL_INVALID": "Invalid email format.",
+    "PASSWORD_REQUIRED": "Please enter your password.",
+    "BRANCH_REQUIRED": "Please select a branch."
   },
   "common": {
     "DATA_LOADED_SUCCESSFULLY": "Data loaded successfully.",

@@ -1,5 +1,8 @@
-﻿using be_authenticationApplication.DependencyInjection.Extensions;
+﻿using be_authenticationApplication.Behaviors;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace be_authenticationApplication.DependencyInjection
 {
@@ -7,7 +10,20 @@ namespace be_authenticationApplication.DependencyInjection
     {
         public static IServiceCollection ApplicationService(this IServiceCollection services)
         {
-            services.AddMediatRExtensions();
+            var assembly = Assembly.GetExecutingAssembly();
+
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(assembly);
+            });
+
+            services.AddValidatorsFromAssembly(assembly);
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+
 
             return services;
         }

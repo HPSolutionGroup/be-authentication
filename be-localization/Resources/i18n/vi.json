@@ -39,7 +39,11 @@
     "REFRESH_TOKEN_EXPIRED": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
     "REFRESH_TOKEN_NOT_FOUND": "Không tìm thấy refresh token.",
     "INVALID_SESSION": "Phiên đăng nhập không hợp lệ.",
-    "INVALID_REQUEST": "Yêu cầu không hợp lệ."
+    "INVALID_REQUEST": "Yêu cầu không hợp lệ.",
+    "EMAIL_REQUIRED": "Vui lòng nhập email.",
+    "EMAIL_INVALID": "Email không đúng định dạng.",
+    "PASSWORD_REQUIRED": "Vui lòng nhập mật khẩu.",
+    "BRANCH_REQUIRED": "Vui lòng chọn chi nhánh."
   },
   "common": {
     "DATA_LOADED_SUCCESSFULLY": "Tải dữ liệu thành công.",

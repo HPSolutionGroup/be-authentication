@@ -1,4 +1,5 @@
 ﻿using be_authenticationDomain.CustomException;
+using be_localization.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using System.Net;
 using System.Text.Json;
@@ -9,18 +10,18 @@ namespace be_authenticationAPI.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
-        // private readonly IJsonLocalizationService _localizer;
+        private readonly IJsonLocalizationService _localizer;
 
         public ExceptionMiddleware
             (
                 RequestDelegate next,
-                ILogger<ExceptionMiddleware> logger
-            //IJsonLocalizationService localizer
+                ILogger<ExceptionMiddleware> logger,
+                IJsonLocalizationService localizer
             )
         {
             _next = next;
             _logger = logger;
-            //_localizer = localizer;
+            _localizer = localizer;
         }
 
         public async Task Invoke(HttpContext context)
@@ -85,6 +86,11 @@ namespace be_authenticationAPI.Middleware
                 case CustomException.InternalServerErrorException internalServerEx:
                     code = HttpStatusCode.InternalServerError;
                     result = internalServerEx.Message;
+                    break;
+
+                case FluentValidation.ValidationException validationEx:
+                    code = HttpStatusCode.BadRequest;
+                    result = validationEx.Errors.FirstOrDefault()?.ErrorMessage ?? "Validation failed";
                     break;
                 default:
                     _logger.LogError(exception, "Đã xảy ra lỗi khống xác định !!!");
