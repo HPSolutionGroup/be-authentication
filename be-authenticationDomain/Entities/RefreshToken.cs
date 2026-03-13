@@ -6,10 +6,10 @@
 
         public string Token { get; set; } // Lưu Hash
 
-        public DateTime CreatedAt { get; set; }
-        public DateTime ExpiresAt { get; set; }
-        public DateTime? LastUsedAt { get; set; }
-        public DateTime? RevokedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset ExpiresAt { get; set; }
+        public DateTimeOffset? LastUsedAt { get; set; }
+        public DateTimeOffset? RevokedAt { get; set; }
 
         public Guid? ReplacedByTokenId { get; set; }
         public Guid? ParentTokenId { get; set; }
@@ -26,7 +26,7 @@
         public UserSession? Session { get; set; }
 
         // ====  ====
-        public bool IsExpired => DateTime.UtcNow >= ExpiresAt;
+        public bool IsExpired => DateTimeOffset.UtcNow >= ExpiresAt;
         public bool IsRevoked => RevokedAt != null;
         public bool IsActive => !IsRevoked && !IsExpired;
     }

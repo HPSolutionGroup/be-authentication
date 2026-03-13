@@ -150,14 +150,14 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -168,8 +168,8 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastUpdatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -190,14 +190,14 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -205,8 +205,8 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastUpdatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -247,14 +247,14 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -265,8 +265,8 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastUpdatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -334,14 +334,14 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -359,8 +359,8 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastUpdatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -383,14 +383,14 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -402,8 +402,8 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastUpdatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -421,21 +421,21 @@ namespace be_authenticationInfrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("CreatedByIp")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("FamilyId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("LastUsedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("ParentTokenId")
                         .HasColumnType("uniqueidentifier");
@@ -447,8 +447,8 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<Guid?>("ReplacedByTokenId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RevokedByIp")
                         .HasMaxLength(50)
@@ -550,14 +550,14 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -569,8 +569,8 @@ namespace be_authenticationInfrastructure.Migrations
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastUpdatedTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -677,7 +677,7 @@ namespace be_authenticationInfrastructure.Migrations
                             LockoutEnabled = false,
                             Name = "Super_Admin",
                             NormalizedUserName = "SUPERADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAELBGhiMsLAmVdv6cFB6s9aX7W+QS0LY8PaaP2FOFGOc5NOVeKgmG+dDRsZsO9F+mwQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKbe9jemyzuRM+++7n+Y9WEj6qUY4jkgwyDvTklziegEgGnvlNrAtLntxq/Jf0j/cQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51",
                             TwoFactorEnabled = false,
@@ -696,7 +696,7 @@ namespace be_authenticationInfrastructure.Migrations
                             Name = "Admin",
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDOUjMVec07PonyDys3nutMNz9F1MeBM9vAtBpAtC4B8NxwliM620y+X6m19aeDdHg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENMDX9oFcZWdcRT7hu3+h9wuwLtrLoMr//hXJyXJzRBOo5kSH6L+WfX4JzHnVyx+DQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ",
                             TwoFactorEnabled = false,
