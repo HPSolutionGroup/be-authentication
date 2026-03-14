@@ -1,0 +1,6 @@
+@HP.Authentication.API_HostAddress = http://localhost:5210
+
+GET {{HP.Authentication.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

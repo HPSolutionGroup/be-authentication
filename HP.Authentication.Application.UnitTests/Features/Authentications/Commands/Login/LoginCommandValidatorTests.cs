@@ -1,10 +1,10 @@
-﻿using be_authenticationApplication.Features.Authentications.Commands.Login;
-using be_localization.Abstractions;
-using be_localization.Enums;
-using FluentAssertions;
+﻿using FluentAssertions;
+using HP.Authentication.Application.Features.Authentications.Commands.Login;
+using HP.Authentication.Localization.Abstractions;
+using HP.Authentication.Localization.Enums;
 using Moq;
 
-namespace be_authenticationApplication.Tests.Features.Authentications.Commands.Login
+namespace HP.Authentication.Application.UnitTests.Features.Authentications.Commands.Login
 {
     public class LoginCommandValidatorTests
     {
