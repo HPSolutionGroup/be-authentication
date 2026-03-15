@@ -43,5 +43,33 @@ namespace HP.Authentication.Infrastructure.Common
 
             return context.Request.Headers["User-Agent"].FirstOrDefault() ?? "unknown";
         }
+
+        public string GetDeviceName()
+        {
+            var context = _httpContextAccessor.HttpContext;
+
+            if (context == null)
+                return "unknown";
+
+            var deviceName = context.Request.Headers["X-Device-Name"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(deviceName))
+                return deviceName;
+
+            return GetUserAgent();
+        }
+
+        public string GetDeviceId()
+        {
+            var context = _httpContextAccessor.HttpContext;
+            if (context == null) return Guid.NewGuid().ToString();
+
+            var deviceId = context.Request.Headers["X-Device-Id"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(deviceId))
+            {
+                return deviceId;
+            }
+
+            return Guid.NewGuid().ToString();
+        }
     }
 }

@@ -64,7 +64,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Repository
                 query = query.Include(x => x.User);
             }
 
-            return await query.FirstOrDefaultAsync(x => x.Token == tokenHash);
+            return await query.FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
         }
         #endregion
 

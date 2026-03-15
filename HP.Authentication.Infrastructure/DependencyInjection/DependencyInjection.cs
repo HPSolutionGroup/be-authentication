@@ -5,7 +5,7 @@ using HP.Authentication.Infrastructure.DependencyInjection.Extensions.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HP.Authentication.Infrastructure.DependencyInjection.Extensions
+namespace HP.Authentication.Infrastructure.DependencyInjection
 {
     public static class DependencyInjection
     {

@@ -342,7 +342,7 @@ namespace HP.Authentication.Infrastructure.Migrations
                     b.Property<Guid?>("SessionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Token")
+                    b.Property<string>("TokenHash")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -362,7 +362,7 @@ namespace HP.Authentication.Infrastructure.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.HasIndex("Token")
+                    b.HasIndex("TokenHash")
                         .IsUnique();
 
                     b.HasIndex("UserId");
@@ -511,7 +511,7 @@ namespace HP.Authentication.Infrastructure.Migrations
                             LockoutEnabled = false,
                             Name = "Super_Admin",
                             NormalizedUserName = "SUPERADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOcBWsLQXdwM/bmrLIXC7BVmmQ6VEjjFatC72Uwb6b1vLwMtzXigKczsDwdpBTzH0w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEISD5o/ZNVJ8PtTJeXM+kbE5WEwZoB+FI4Sy0SKvUrZL9BCqfGosT/cenQzKm0H0VA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51",
                             TwoFactorEnabled = false,
@@ -530,7 +530,7 @@ namespace HP.Authentication.Infrastructure.Migrations
                             Name = "Admin",
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEI48kuv046trzhoEvGsLG3FoYD+8Klw3N5wsXpuQy92QOCRR8qmbLl97KQJ+Jnex/w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAOl4ORQf5/jOKXSn7uZ+b1AlN+w80Gpo7z/zvpabeqjPRw4lB7FG9tMXhD0HbDt9w==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ",
                             TwoFactorEnabled = false,
@@ -608,8 +608,8 @@ namespace HP.Authentication.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DeviceId")
                         .HasMaxLength(255)
@@ -623,11 +623,11 @@ namespace HP.Authentication.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime?>("LastSeenAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("LastSeenAt")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RevokedReason")
                         .HasMaxLength(500)

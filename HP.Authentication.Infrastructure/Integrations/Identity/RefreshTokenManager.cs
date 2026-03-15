@@ -73,7 +73,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             var refreshToken = new RefreshToken
             {
                 UserId = userId,
-                Token = _refreshTokenHasher.Hash(tokenString),
+                TokenHash = _refreshTokenHasher.Hash(tokenString),
                 CreatedAt = now,
                 ExpiresAt = now.AddDays(RefreshExpiryDays),
                 CreatedByIp = ipAddress,
@@ -144,7 +144,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             var newRefreshToken = new RefreshToken
             {
                 UserId = tokenEntity.UserId,
-                Token = _refreshTokenHasher.Hash(newTokenString),
+                TokenHash = _refreshTokenHasher.Hash(newTokenString),
                 CreatedAt = now,
                 ExpiresAt = now.AddDays(RefreshExpiryDays),
                 CreatedByIp = ipAddress,

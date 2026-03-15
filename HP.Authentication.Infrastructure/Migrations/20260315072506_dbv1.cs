@@ -248,13 +248,13 @@ namespace HP.Authentication.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DeviceName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     DeviceId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    DeviceName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     UserAgent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     IpAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastSeenAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastSeenAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    RevokedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     RevokedReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -363,7 +363,7 @@ namespace HP.Authentication.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    TokenHash = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ExpiresAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastUsedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -534,8 +534,8 @@ namespace HP.Authentication.Infrastructure.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "Avatar", "ConcurrencyStamp", "DateOfBirth", "Email", "EmailConfirmed", "IsActive", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEOcBWsLQXdwM/bmrLIXC7BVmmQ6VEjjFatC72Uwb6b1vLwMtzXigKczsDwdpBTzH0w==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
-                    { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", null, "admin@gmail.com", true, true, false, null, "Admin", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEI48kuv046trzhoEvGsLG3FoYD+8Klw3N5wsXpuQy92QOCRR8qmbLl97KQJ+Jnex/w==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
+                    { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "B7NC4P2XQZ5LKA2YTR7WJDF3G6VHS5EM", null, "superadmin@gmail.com", true, true, false, null, "Super_Admin", null, "SUPERADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEISD5o/ZNVJ8PtTJeXM+kbE5WEwZoB+FI4Sy0SKvUrZL9BCqfGosT/cenQzKm0H0VA==", null, false, "N9WM7PKRYL4J3AV26GTXUEQB0CZMFH51", false, "superadmin@gmail.com" },
+                    { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"), 0, "https://res.cloudinary.com/da3m7fj99/image/upload/v1732819079/admin_hpdxlr.png", "P4XQ2P7ZNCL5BKA3YTR2WJDF6G5VHS7E", null, "admin@gmail.com", true, true, false, null, "Admin", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAIAAYagAAAAEAOl4ORQf5/jOKXSn7uZ+b1AlN+w80Gpo7z/zvpabeqjPRw4lB7FG9tMXhD0HbDt9w==", null, false, "VHHP3SM5ARZNAMM6YNEZY6SQXWQ6YYIJ", false, "admin@gmail.com" }
                 });
 
             migrationBuilder.InsertData(
@@ -654,9 +654,9 @@ namespace HP.Authentication.Infrastructure.Migrations
                 column: "SessionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_Token",
+                name: "IX_RefreshTokens_TokenHash",
                 table: "RefreshTokens",
-                column: "Token",
+                column: "TokenHash",
                 unique: true);
 
             migrationBuilder.CreateIndex(

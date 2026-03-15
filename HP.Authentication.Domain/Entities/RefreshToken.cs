@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public string Token { get; set; } // Lưu Hash
+        public string TokenHash { get; set; } // Lưu Hash
 
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset ExpiresAt { get; set; }

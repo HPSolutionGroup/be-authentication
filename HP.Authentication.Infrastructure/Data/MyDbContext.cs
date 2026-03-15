@@ -151,7 +151,7 @@ namespace HP.Authentication.Infrastructure.Data
             {
                 entity.HasKey(x => x.Id);
 
-                entity.Property(x => x.Token)
+                entity.Property(x => x.TokenHash)
                     .IsRequired()
                     .HasMaxLength(500);
 
@@ -164,7 +164,7 @@ namespace HP.Authentication.Infrastructure.Data
                 entity.Property(x => x.ReasonRevoked)
                     .HasMaxLength(500);
 
-                entity.HasIndex(x => x.Token)
+                entity.HasIndex(x => x.TokenHash)
                     .IsUnique();
 
                 entity.HasIndex(x => x.UserId);
@@ -173,7 +173,7 @@ namespace HP.Authentication.Infrastructure.Data
                 entity.HasIndex(x => x.ExpiresAt);
                 entity.HasIndex(x => x.ReplacedByTokenId);
                 entity.HasIndex(x => x.ParentTokenId);
-                entity.HasIndex(x => x.Token).IsUnique();
+                entity.HasIndex(x => x.TokenHash).IsUnique();
 
                 entity.HasOne(x => x.User)
                     .WithMany(u => u.RefreshTokens)

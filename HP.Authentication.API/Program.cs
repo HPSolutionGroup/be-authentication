@@ -1,6 +1,6 @@
 using HP.Authentication.API.Middleware;
 using HP.Authentication.Application.DependencyInjection;
-using HP.Authentication.Infrastructure.DependencyInjection.Extensions;
+using HP.Authentication.Infrastructure.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);

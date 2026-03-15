@@ -21,7 +21,7 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRefreshTokenManager _refreshTokenManager;
         private readonly IUserContext _userContext;
-
+        private readonly IUserSessionManager _userSessionManager;
         public LoginCommandHandler(
             IPasswordHasher passwordHasher,
             IJwtService jwtService,
@@ -29,7 +29,8 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
             IJsonLocalizationService localizer,
             IUnitOfWork unitOfWork,
             IRefreshTokenManager refreshTokenManager,
-            IUserContext userContext)
+            IUserContext userContext,
+            IUserSessionManager userSessionManager)
         {
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
@@ -38,6 +39,7 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
             _unitOfWork = unitOfWork;
             _refreshTokenManager = refreshTokenManager;
             _userContext = userContext;
+            _userSessionManager = userSessionManager;
         }
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -83,12 +85,23 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
             #endregion
 
             var ipAddress = _userContext.GetIpAddress();
+            var userAgent = _userContext.GetUserAgent();    
+            var deviceName = _userContext.GetDeviceName();
+            var deviceId = _userContext.GetDeviceId();
+
+            var session = await _userSessionManager.CreateSessionAsync(
+                user.Id,
+                ipAddress,
+                userAgent,
+                deviceName,
+                deviceId
+            );
 
             await _refreshTokenManager.CreateTokenAsync(
                 userId: user.Id,
                 tokenString: refreshToken,
                 ipAddress: ipAddress ?? "unknown",
-                sessionId: null
+                sessionId: session.Id
             );
 
             return new LoginResponse
