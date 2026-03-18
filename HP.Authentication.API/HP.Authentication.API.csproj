@@ -12,6 +12,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Keys\**" />
+    <Content Remove="Keys\**" />
+    <EmbeddedResource Remove="Keys\**" />
+    <None Remove="Keys\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.14">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -35,15 +42,6 @@
     <ProjectReference Include="..\HP.Authentication.Domain\HP.Authentication.Domain.csproj" />
     <ProjectReference Include="..\HP.Authentication.Infrastructure\HP.Authentication.Infrastructure.csproj" />
     <ProjectReference Include="..\HP.Authentication.Localization\HP.Authentication.Localization.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Keys\private.pem">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Keys\public.pem">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
