@@ -12,13 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Keys\**" />
-    <Content Remove="Keys\**" />
-    <EmbeddedResource Remove="Keys\**" />
-    <None Remove="Keys\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.14">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
