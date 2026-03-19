@@ -3,6 +3,8 @@ using HP.Authentication.Application.Common;
 using HP.Authentication.Application.Features.Authentications.DTOs;
 using HP.Authentication.Domain.CustomException;
 using HP.Authentication.Domain.Entities;
+using HP.Authentication.Localization.Abstractions;
+using HP.Authentication.Localization.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -15,23 +17,24 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Refres
         private readonly UserManager<User> _userManager;
         private readonly IUserContext _userContext;
 
+        private readonly IJsonLocalizationService _localizer;
+
         public RefreshTokenCommandHandler(
             IRefreshTokenManager refreshTokenManager,
             IJwtService jwtService,
             UserManager<User> userManager,
-            IUserContext userContext)
+            IUserContext userContext,
+            IJsonLocalizationService localizer)
         {
             _refreshTokenManager = refreshTokenManager;
             _jwtService = jwtService;
             _userManager = userManager;
             _userContext = userContext;
+            _localizer = localizer;
         }
 
         public async Task<LoginResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.RefreshToken))
-                throw new CustomException.InvalidDataException("Refresh token không được để trống.");
-
             var ipAddress = _userContext.GetIpAddress();
 
             var newRefreshToken = _jwtService.GenerateRefreshToken();
@@ -42,7 +45,8 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Refres
                 ipAddress: ipAddress);
 
             if (!user.IsActive)
-                throw new CustomException.UnAuthorizedException("Tài khoản không hoạt động.");
+                throw new CustomException.UnAuthorizedException(
+                    _localizer.Get("auth", AuthKeys.USER_NOT_ACTIVE));
 
             var roles = await _userManager.GetRolesAsync(user);
 
