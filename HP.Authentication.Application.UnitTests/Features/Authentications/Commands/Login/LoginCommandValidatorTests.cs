@@ -16,8 +16,20 @@ namespace HP.Authentication.Application.UnitTests.Features.Authentications.Comma
             _localizerMock = new Mock<IJsonLocalizationService>();
 
             _localizerMock
-                .Setup(x => x.Get("auth", It.IsAny<AuthKeys>(), It.IsAny<object[]>()))
-                .Returns("validation error");
+                .Setup(x => x.Get("auth", AuthKeys.EMAIL_REQUIRED))
+                .Returns("Email không được để trống.");
+
+            _localizerMock
+                .Setup(x => x.Get("auth", AuthKeys.EMAIL_INVALID))
+                .Returns("Email không đúng định dạng.");
+
+            _localizerMock
+                .Setup(x => x.Get("auth", AuthKeys.PASSWORD_REQUIRED))
+                .Returns("Mật khẩu không được để trống.");
+
+            _localizerMock
+                .Setup(x => x.Get("auth", AuthKeys.BRANCH_REQUIRED))
+                .Returns("Vui lòng chọn chi nhánh.");
 
             _validator = new LoginCommandValidator(_localizerMock.Object);
         }
@@ -35,7 +47,9 @@ namespace HP.Authentication.Application.UnitTests.Features.Authentications.Comma
             var result = await _validator.ValidateAsync(command);
 
             result.IsValid.Should().BeFalse();
-            result.Errors.Should().Contain(x => x.PropertyName == nameof(LoginCommand.Email));
+            result.Errors.Should().Contain(x =>
+                x.PropertyName == nameof(LoginCommand.Email) &&
+                x.ErrorMessage == "Email không được để trống.");
         }
 
         [Fact]
@@ -51,7 +65,9 @@ namespace HP.Authentication.Application.UnitTests.Features.Authentications.Comma
             var result = await _validator.ValidateAsync(command);
 
             result.IsValid.Should().BeFalse();
-            result.Errors.Should().Contain(x => x.PropertyName == nameof(LoginCommand.Email));
+            result.Errors.Should().Contain(x =>
+                x.PropertyName == nameof(LoginCommand.Email) &&
+                x.ErrorMessage == "Email không đúng định dạng.");
         }
 
         [Fact]
@@ -67,7 +83,9 @@ namespace HP.Authentication.Application.UnitTests.Features.Authentications.Comma
             var result = await _validator.ValidateAsync(command);
 
             result.IsValid.Should().BeFalse();
-            result.Errors.Should().Contain(x => x.PropertyName == nameof(LoginCommand.Password));
+            result.Errors.Should().Contain(x =>
+                x.PropertyName == nameof(LoginCommand.Password) &&
+                x.ErrorMessage == "Mật khẩu không được để trống.");
         }
 
         [Fact]
@@ -83,7 +101,9 @@ namespace HP.Authentication.Application.UnitTests.Features.Authentications.Comma
             var result = await _validator.ValidateAsync(command);
 
             result.IsValid.Should().BeFalse();
-            result.Errors.Should().Contain(x => x.PropertyName == nameof(LoginCommand.BranchId));
+            result.Errors.Should().Contain(x =>
+                x.PropertyName == nameof(LoginCommand.BranchId) &&
+                x.ErrorMessage == "Vui lòng chọn chi nhánh.");
         }
 
         [Fact]
