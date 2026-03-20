@@ -1,5 +1,6 @@
 ﻿using HP.Authentication.Application.Abstractions.Identity;
-using HP.Authentication.Application.Abstractions.Repository;
+using HP.Authentication.Application.Abstractions.Repository.Authorization;
+using HP.Authentication.Application.Abstractions.Repository.GenericRepository;
 using HP.Authentication.Application.Common;
 using HP.Authentication.Application.Features.Authentications.DTOs;
 using HP.Authentication.Domain.CustomException;
@@ -22,6 +23,7 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
         private readonly IRefreshTokenManager _refreshTokenManager;
         private readonly IUserContext _userContext;
         private readonly IUserSessionManager _userSessionManager;
+        private readonly IUserInBranchRepository _userInBranchRepository;
         public LoginCommandHandler(
             IPasswordHasher passwordHasher,
             IJwtService jwtService,
@@ -30,7 +32,8 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
             IUnitOfWork unitOfWork,
             IRefreshTokenManager refreshTokenManager,
             IUserContext userContext,
-            IUserSessionManager userSessionManager)
+            IUserSessionManager userSessionManager,
+            IUserInBranchRepository userInBranchRepository)
         {
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
@@ -40,6 +43,7 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
             _refreshTokenManager = refreshTokenManager;
             _userContext = userContext;
             _userSessionManager = userSessionManager;
+            _userInBranchRepository = userInBranchRepository;
         }
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -69,6 +73,21 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
             }
 
             await _userManager.ResetAccessFailedCountAsync(user);
+
+            var selectedBranch = await _unitOfWork.Repository<Branch>()
+                .Query(false)
+                .Where(b => b.Id == request.BranchId)
+                .Select(b => new { b.Name })
+                .FirstOrDefaultAsync();
+
+            var allowedBranches = await _userInBranchRepository.GetBranchesOfUserAsync(user.Id);
+            var allowedBranchIds = allowedBranches.Select(b => b.BranchId).ToList();
+
+            if (!allowedBranchIds.Contains(request.BranchId))
+                throw new CustomException.UnAuthorizedException(_localizer.Get("auth", AuthKeys.BRANCH_ACCESS_DENIED));
+
+            if (selectedBranch == null)
+                throw new CustomException.UnAuthorizedException(_localizer.Get("auth", AuthKeys.BRANCH_NOT_FOUND));
 
             var roles = await _userManager.GetRolesAsync(user);
 

@@ -1,8 +1,8 @@
-﻿using HP.Authentication.Application.Abstractions.Repository;
+﻿using HP.Authentication.Application.Abstractions.Repository.GenericRepository;
 using HP.Authentication.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace HP.Authentication.Infrastructure.Integrations.Repository
+namespace HP.Authentication.Infrastructure.Integrations.Repository.GenericRepository
 {
     public class UnitOfWork : IUnitOfWork
     {

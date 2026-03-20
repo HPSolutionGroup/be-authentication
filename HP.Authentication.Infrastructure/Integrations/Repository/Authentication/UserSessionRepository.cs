@@ -1,9 +1,9 @@
-﻿using HP.Authentication.Application.Abstractions.Repository;
+﻿using HP.Authentication.Application.Abstractions.Repository.Authentication;
 using HP.Authentication.Domain.Entities;
 using HP.Authentication.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace HP.Authentication.Infrastructure.Integrations.Repository
+namespace HP.Authentication.Infrastructure.Integrations.Repository.Authentication
 {
     public class UserSessionRepository : IUserSessionRepository
     {

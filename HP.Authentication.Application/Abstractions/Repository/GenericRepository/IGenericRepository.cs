@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace HP.Authentication.Application.Abstractions.Repository
+namespace HP.Authentication.Application.Abstractions.Repository.GenericRepository
 {
     public interface IGenericRepository<T> where T : class
     {

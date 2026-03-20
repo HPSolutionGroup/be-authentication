@@ -1,4 +1,4 @@
-﻿using HP.Authentication.Application.Abstractions.Repository;
+﻿using HP.Authentication.Application.Abstractions.Repository.GenericRepository;
 using MediatR;
 
 namespace HP.Authentication.Application.Behaviors

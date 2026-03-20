@@ -1,6 +1,6 @@
 ﻿using HP.Authentication.Domain.Entities;
 
-namespace HP.Authentication.Application.Abstractions.Repository
+namespace HP.Authentication.Application.Abstractions.Repository.Authentication
 {
     public interface IUserSessionRepository
     {

@@ -1,4 +1,4 @@
-﻿namespace HP.Authentication.Application.Abstractions.Repository
+﻿namespace HP.Authentication.Application.Abstractions.Repository.GenericRepository
 {
     public interface IUnitOfWork : IDisposable, IAsyncDisposable
     {

@@ -1,9 +1,9 @@
-﻿using HP.Authentication.Application.Abstractions.Repository;
+﻿using HP.Authentication.Application.Abstractions.Repository.GenericRepository;
 using HP.Authentication.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace HP.Authentication.Infrastructure.Integrations.Repository
+namespace HP.Authentication.Infrastructure.Integrations.Repository.GenericRepository
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity>
         where TEntity : class

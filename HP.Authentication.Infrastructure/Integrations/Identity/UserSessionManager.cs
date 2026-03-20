@@ -1,5 +1,5 @@
 ﻿using HP.Authentication.Application.Abstractions.Identity;
-using HP.Authentication.Application.Abstractions.Repository;
+using HP.Authentication.Application.Abstractions.Repository.Authentication;
 using HP.Authentication.Application.Common;
 using HP.Authentication.Domain.CustomException;
 using HP.Authentication.Domain.Entities;
