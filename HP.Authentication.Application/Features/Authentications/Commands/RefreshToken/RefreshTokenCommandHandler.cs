@@ -1,7 +1,6 @@
 ﻿using HP.Authentication.Application.Abstractions.Identity;
 using HP.Authentication.Application.Common;
 using HP.Authentication.Application.Features.Authentications.DTOs;
-using HP.Authentication.Domain.CustomException;
 using HP.Authentication.Domain.Entities;
 using HP.Authentication.Localization.Abstractions;
 using HP.Authentication.Localization.Enums;

@@ -2,8 +2,8 @@
 using HP.Authentication.Application.Abstractions.Repository.Authorization;
 using HP.Authentication.Application.Abstractions.Repository.GenericRepository;
 using HP.Authentication.Application.Common;
+using HP.Authentication.Application.CustomException;
 using HP.Authentication.Application.Features.Authentications.DTOs;
-using HP.Authentication.Domain.CustomException;
 using HP.Authentication.Domain.Entities;
 using HP.Authentication.Localization.Abstractions;
 using HP.Authentication.Localization.Enums;
@@ -53,10 +53,10 @@ namespace HP.Authentication.Application.Features.Authentications.Commands.Login
                 .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
 
             if (user == null)
-                throw new CustomException.UnAuthorizedException(_localizer.Get("auth", AuthKeys.INVALID_CREDENTIALS));
+                throw new UnAuthorizedException(_localizer.Get("auth", AuthKeys.INVALID_CREDENTIALS));
 
             if (!user.IsActive)
-                throw new CustomException.UnAuthorizedException(_localizer.Get("auth", AuthKeys.USER_NOT_ACTIVE));
+                throw new UnAuthorizedException(_localizer.Get("auth", AuthKeys.USER_NOT_ACTIVE));
 
             var outcome = _passwordHasher.VerifyPassword(request.Password, user.PasswordHash!, user);
 

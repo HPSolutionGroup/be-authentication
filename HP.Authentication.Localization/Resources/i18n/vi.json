@@ -56,5 +56,15 @@
     "UNHANDLED_ERROR": "Đã xảy ra lỗi không xác định.",
     "NAME_CAN_NOT_EMPTY": "Tên không được trống",
     "LOG_NOT_FOUND": "Không tìm thấy log"
+  },
+  "exception": {
+    "INTERNAL_SERVER_ERROR": "Đã xảy ra lỗi hệ thống từ server. Vui lòng thử lại sau.",
+    "UNKNOWN_ERROR": "Đã xảy ra lỗi hệ thống không xác định !!!",
+    "UNAUTHORIZED": "Phiên làm việc đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.",
+    "FORBIDDEN": "Bạn không có quyền truy cập vào tài nguyên này.",
+    "VALIDATION_FAILED": "Dữ liệu đầu vào không hợp lệ.",
+    "INVALID_DATA": "Dữ liệu xử lý không hợp lệ.",
+    "DATA_NOT_FOUND": "Không tìm thấy dữ liệu yêu cầu.",
+    "DATA_EXIST": "Dữ liệu đã tồn tại trong hệ thống."
   }
 }

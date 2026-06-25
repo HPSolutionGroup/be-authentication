@@ -1,12 +1,13 @@
 ﻿using HP.Authentication.Application.Abstractions.Identity;
 using HP.Authentication.Application.Abstractions.Repository.Authentication;
 using HP.Authentication.Application.Common;
-using HP.Authentication.Domain.CustomException;
+using HP.Authentication.Application.CustomException;
 using HP.Authentication.Domain.Entities;
 using HP.Authentication.Localization.Abstractions;
 using HP.Authentication.Localization.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using InvalidDataException = HP.Authentication.Application.CustomException.InvalidDataException;
 
 namespace HP.Authentication.Infrastructure.Integrations.Identity
 {
@@ -61,11 +62,11 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             Guid? sessionId = null)
         {
             if (userId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_USER));
 
             if (string.IsNullOrWhiteSpace(tokenString))
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             var now = _dateTimeProvider.UtcNow;
@@ -110,11 +111,11 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string ipAddress)
         {
             if (string.IsNullOrWhiteSpace(oldTokenString))
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             if (string.IsNullOrWhiteSpace(newTokenString))
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             var oldTokenHash = _refreshTokenHasher.Hash(oldTokenString);
@@ -123,15 +124,15 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
                 .GetByTokenHashAsync(oldTokenHash, includeUser: true);
 
             if (tokenEntity == null)
-                throw new CustomException.UnAuthorizedException(
+                throw new UnAuthorizedException(
                     _localizer.Get("auth", AuthKeys.INVALID_REFRESH_TOKEN));
 
             if (tokenEntity.IsRevoked)
-                throw new CustomException.UnAuthorizedException(
+                throw new UnAuthorizedException(
                     _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REUSE_DETECTED));
 
             if (tokenEntity.IsExpired)
-                throw new CustomException.UnAuthorizedException(
+                throw new UnAuthorizedException(
                     _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_EXPIRED));
 
             var now = _dateTimeProvider.UtcNow;
@@ -188,7 +189,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string reason = "Manual revoke")
         {
             if (string.IsNullOrWhiteSpace(tokenString))
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_REQUIRED));
 
             var tokenHash = _refreshTokenHasher.Hash(tokenString);
@@ -196,7 +197,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             var tokenEntity = await _refreshTokenRepository.GetByTokenHashAsync(tokenHash);
 
             if (tokenEntity == null)
-                throw new CustomException.DataNotFoundException(
+                throw new DataNotFoundException(
                     _localizer.Get("auth", AuthKeys.REFRESH_TOKEN_NOT_FOUND));
 
             if (!tokenEntity.IsActive)
@@ -239,7 +240,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string reason)
         {
             if (familyId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_REQUEST));
 
             var tokens = await _refreshTokenRepository.GetActiveByFamilyIdAsync(familyId);
@@ -287,7 +288,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string reason = "Session revoked")
         {
             if (sessionId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_SESSION));
 
             var tokens = await _refreshTokenRepository.GetActiveBySessionIdAsync(sessionId);
@@ -335,7 +336,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string reason = "Revoke all devices")
         {
             if (userId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_USER));
 
             var tokens = await _refreshTokenRepository.GetActiveByUserIdAsync(userId);

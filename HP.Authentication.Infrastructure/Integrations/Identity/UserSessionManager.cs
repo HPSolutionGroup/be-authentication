@@ -1,11 +1,12 @@
 ﻿using HP.Authentication.Application.Abstractions.Identity;
 using HP.Authentication.Application.Abstractions.Repository.Authentication;
 using HP.Authentication.Application.Common;
-using HP.Authentication.Domain.CustomException;
+using HP.Authentication.Application.CustomException;
 using HP.Authentication.Domain.Entities;
 using HP.Authentication.Localization.Abstractions;
 using HP.Authentication.Localization.Enums;
 using Microsoft.Extensions.Logging;
+using InvalidDataException = HP.Authentication.Application.CustomException.InvalidDataException;
 
 namespace HP.Authentication.Infrastructure.Integrations.Identity
 {
@@ -55,7 +56,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string? deviceId = null)
         {
             if (userId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_USER));
 
             var now = _dateTimeProvider.UtcNow;
@@ -122,7 +123,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
         public async Task TouchSessionAsync(Guid sessionId)
         {
             if (sessionId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_SESSION));
 
             var session = await _userSessionRepository.GetActiveByIdAsync(sessionId);
@@ -165,13 +166,13 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string reason = "Session revoked")
         {
             if (sessionId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_SESSION));
 
             var session = await _userSessionRepository.GetByIdAsync(sessionId);
 
             if (session == null)
-                throw new CustomException.DataNotFoundException(
+                throw new DataNotFoundException(
                     _localizer.Get("auth", AuthKeys.INVALID_SESSION));
 
             if (!session.IsActive)
@@ -226,7 +227,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
             string reason = "Revoke all sessions")
         {
             if (userId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_USER));
 
             var sessions = await _userSessionRepository.GetActiveByUserIdAsync(userId);
@@ -273,7 +274,7 @@ namespace HP.Authentication.Infrastructure.Integrations.Identity
         public async Task<List<UserSession>> GetActiveSessionsByUserAsync(Guid userId)
         {
             if (userId == Guid.Empty)
-                throw new CustomException.InvalidDataException(
+                throw new InvalidDataException(
                     _localizer.Get("auth", AuthKeys.INVALID_USER));
 
             return await _userSessionRepository.GetActiveByUserIdAsync(userId);
