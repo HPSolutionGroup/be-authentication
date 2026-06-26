@@ -1,4 +1,5 @@
 ﻿using HP.Authentication.Localization.Abstractions;
+using HP.Authentication.Localization.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
@@ -7,14 +8,15 @@ namespace HP.Authentication.Localization.Services
 {
     public class JsonLocalizationService : IJsonLocalizationService
     {
-        private readonly IHostEnvironment _env;
+
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Dictionary<string, Dictionary<string, string>> _localizationCache = new();
+        private LocalizationConfig _config = new();
 
         public JsonLocalizationService(IHostEnvironment env, IHttpContextAccessor httpContextAccessor)
         {
-            _env = env;
             _httpContextAccessor = httpContextAccessor;
+            LoadConfig();
             LoadAllLanguages();
         }
 
@@ -39,23 +41,41 @@ namespace HP.Authentication.Localization.Services
             return key; // fallback
         }
 
-        private string GetRequestCulture()
+        public string GetRequestCulture()
         {
             var culture = _httpContextAccessor.HttpContext?.Request.Headers["Accept-Language"].ToString();
-            if (string.IsNullOrWhiteSpace(culture)) return "vi";
 
-            var lang = culture.Split(',')[0].Trim().ToLower();
-            return lang switch
+            if (string.IsNullOrWhiteSpace(culture))
+                return _config.DefaultLanguage;
+
+            //var lang = culture.Split(',')[0].Trim().ToLower();
+            var lang = culture.Split(',')[0].Trim().ToLower().Split('-')[0];
+
+            if (_config.SupportedLanguages.Contains(
+                    lang,
+                    StringComparer.OrdinalIgnoreCase))
             {
-                "vi-vn" => "vi",
-                "en-us" => "en",
-                "vi" => "vi",
-                "en" => "en",
-                _ => "vi" // fallback nếu không khớp
-            };
+                return lang;
+            }
+
+            return _config.DefaultLanguage;
         }
 
+        private void LoadConfig()
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "Resources", "config", "localization.config.json");
 
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException(
+                    $"Localization config not found: {path}");
+            }
+
+            var json = File.ReadAllText(path);
+
+            _config = JsonSerializer.Deserialize<LocalizationConfig>(json)
+                      ?? new LocalizationConfig();
+        }
         private void LoadAllLanguages()
         {
             var path = Path.Combine(AppContext.BaseDirectory, "Resources", "i18n");
@@ -74,6 +94,7 @@ namespace HP.Authentication.Localization.Services
                     _localizationCache[culture] = flatDict;
                 }
             }
+            ValidateConfig();
         }
 
         private void FlattenJson(JsonElement element, string parentKey, Dictionary<string, string> result)
@@ -90,6 +111,29 @@ namespace HP.Authentication.Localization.Services
                 {
                     result[key] = property.Value.GetString()!;
                 }
+            }
+        }
+
+        private void ValidateConfig()
+        {
+            if (!_config.SupportedLanguages.Any())
+            {
+                throw new InvalidOperationException(
+                    "SupportedLanguages cannot be empty.");
+            }
+            foreach (var language in _config.SupportedLanguages)
+            {
+                if (!_localizationCache.ContainsKey(language))
+                {
+                    throw new InvalidOperationException(
+                        $"Language file '{language}.json' not found.");
+                }
+            }
+
+            if (!_config.SupportedLanguages.Contains(_config.DefaultLanguage))
+            {
+                throw new InvalidOperationException(
+                    $"Default language '{_config.DefaultLanguage}' must exist in supportedLanguages.");
             }
         }
     }
